@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,11 +18,16 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class LoginController extends AbstractController
 {
     #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(AuthenticationUtils $authenticationUtils, UserRepository $repository): Response
     {
         if (null !== $this->getUser())
         {
             return $this->redirectToRoute('app_welcome');
+        }
+
+        if ( ! $repository->hasUser())
+        {
+            return $this->redirectToRoute('app_register');
         }
 
         $error        = $authenticationUtils->getLastAuthenticationError();
@@ -33,8 +39,12 @@ class LoginController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface $entityManager,
+        UserRepository $repository
+    ): Response {
         if (null !== $this->getUser())
         {
             return $this->redirectToRoute('app_welcome');
@@ -54,11 +64,18 @@ class LoginController extends AbstractController
                 )
             );
 
+            if ( ! $repository->hasUser())
+            {
+                $user->setRoles([
+                    'ROLE_ADMIN',
+                ]);
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
             // do anything else you need here, like send an email
 
-            return $this->redirectToRoute('app_welcome');
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('login/register.html.twig', [
