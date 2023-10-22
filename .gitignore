@@ -23,6 +23,7 @@
 .idea
 *.lock
 *-lock.json
+*.cache
 !symfony.lock
 ###< custom ###
 ###> pentatrion/vite-bundle ###

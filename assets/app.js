@@ -1,5 +1,7 @@
+import './fonts';
 import "./app.scss";
 import "./_svelte-app.scss";
+import 'flowbite';
 
 import App from './App.svelte';
 
