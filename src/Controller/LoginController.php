@@ -9,10 +9,12 @@ use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class LoginController extends AbstractController
@@ -81,5 +83,19 @@ class LoginController extends AbstractController
         return $this->render('login/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
+    }
+
+    /**
+     * Svelte / js api access using cookie => Authorization: Bearer <token.token>.
+     */
+    #[Route('/user/token', 'app_user_token')]
+    public function token(UserRepository $repository): JsonResponse
+    {
+        if ( ! $this->getUser())
+        {
+            throw new BadCredentialsException();
+        }
+
+        return $this->json($repository->generateOrGetToken($this->getUser()));
     }
 }

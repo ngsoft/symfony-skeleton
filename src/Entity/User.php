@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -12,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, \Stringable, \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -26,10 +28,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles      = [];
 
     /**
-     * @var string The hashed password
+     * The hashed password.
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: AccessToken::class)]
+    private Collection $tokens;
+
+    public function __construct()
+    {
+        $this->tokens = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->username;
+    }
 
     public function getId(): ?int
     {
@@ -99,5 +114,59 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, AccessToken>
+     */
+    public function getTokens(): Collection
+    {
+        return $this->tokens;
+    }
+
+    public function addToken(AccessToken $token): static
+    {
+        if ( ! $this->tokens->contains($token))
+        {
+            $this->tokens->add($token);
+            $token->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeToken(AccessToken $token): static
+    {
+        if ($this->tokens->removeElement($token))
+        {
+            // set the owning side to null (unless already changed)
+            if ($token->getUser() === $this)
+            {
+                $token->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get a valid token.
+     */
+    public function getToken(): ?AccessToken
+    {
+        /** @var AccessToken $token */
+        foreach ($this->tokens as $token)
+        {
+            if ( ! $token->isExpired())
+            {
+                return $token;
+            }
+        }
+        return null;
+    }
+
+    public function jsonSerialize(): string
+    {
+        return $this->__toString();
     }
 }

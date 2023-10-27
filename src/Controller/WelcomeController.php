@@ -12,7 +12,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class WelcomeController extends AbstractController
 {
     #[IsGranted('ROLE_USER')]
-    #[Route('/welcome', name: 'app_welcome')]
+    #[Route([
+        'en' => '/welcome',
+        '/',
+    ], name: 'app_welcome')]
     public function index(): Response
     {
         return $this->render('welcome/index.html.twig', [

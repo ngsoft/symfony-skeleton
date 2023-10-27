@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\AccessToken;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -25,7 +26,7 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly AccessTokenRepository $tokenRepository)
     {
         parent::__construct($registry, User::class);
     }
@@ -65,6 +66,33 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         {
             return true;
         }
+    }
+
+    public function generateOrGetToken(User $user): AccessToken
+    {
+        $valid = null;
+
+        $em    = $this->tokenRepository->getEntityManager();
+
+        /** @var AccessToken $token */
+        foreach ($user->getTokens() as $token)
+        {
+            if ( ! $token->isExpired())
+            {
+                $valid = $token;
+            } elseif ( ! $token->isPermanent())
+            {
+                $em->remove($token);
+            }
+        }
+
+        if ( ! isset($valid))
+        {
+            $em->persist($valid = new AccessToken($user));
+        }
+
+        $em->flush();
+        return $valid;
     }
 
     //    /**
