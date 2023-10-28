@@ -115,8 +115,9 @@ class AccessToken implements \Stringable, \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'user'  => $this->user,
-            'token' => $this->token,
+            'user'    => $this->user,
+            'token'   => $this->token,
+            'expires' => $this->expiresAt,
         ];
     }
 }

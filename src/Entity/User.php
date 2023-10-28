@@ -50,7 +50,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function __toString(): string
     {
-        return $this->username;
+        return $this->getFullName();
     }
 
     public function getId(): ?int
