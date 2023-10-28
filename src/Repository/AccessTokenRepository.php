@@ -23,8 +23,24 @@ class AccessTokenRepository extends ServiceEntityRepository
         parent::__construct($registry, AccessToken::class);
     }
 
+    /**
+     * Delete expired tokens.
+     */
+    public function cleanUpTokens(): void
+    {
+        $this->getEntityManager()->createQueryBuilder()
+            ->delete(AccessToken::class, 't')
+            ->andWhere('t.permanent = 0')
+            ->andWhere('t.expiresAt < :now')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()->execute()
+        ;
+    }
+
     public function findOneByValue(string $accessToken): ?AccessToken
     {
+        $this->cleanUpTokens();
+
         return
             $this->createQueryBuilder('t')
                 ->andWhere('t.token = :val')

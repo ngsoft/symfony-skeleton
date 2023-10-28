@@ -70,7 +70,7 @@ class LoginController extends AbstractController
             if ( ! $repository->hasUser())
             {
                 $user->setRoles([
-                    'ROLE_ADMIN',
+                    'ROLE_SUPER_ADMIN',
                 ]);
             }
 

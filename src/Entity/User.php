@@ -17,31 +17,47 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity(fields: ['username', 'email'], message: 'There is already an account with this username/email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Stringable, \JsonSerializable
 {
+    public const ROLE_USER        = 'ROLE_USER';
+    public const ROLE_ADMIN       = 'ROLE_ADMIN';
+    public const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
+
+    /**
+     * @var array<string,bool> role, writable
+     */
+    public const BUILTIN_ROLES    = [
+        self::ROLE_USER        => false,
+        self::ROLE_ADMIN       => true,
+        self::ROLE_SUPER_ADMIN => true,
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id          = null;
+    private ?int $id              = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    private ?string $username = null;
+    private ?string $username     = null;
 
     #[ORM\Column]
-    private array $roles      = [];
+    private array $roles          = [];
 
     /**
      * The hashed password.
      */
     #[ORM\Column]
-    private ?string $password = null;
+    private ?string $password     = null;
 
     #[ORM\Column('fullname', length: 255, nullable: true)]
-    private ?string $fullName = null;
+    private ?string $fullName     = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: true)]
-    private ?string $email    = null;
+    private ?string $email        = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: AccessToken::class)]
     private Collection $tokens;
+
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
+    private bool $enabled         = true;
 
     public function __construct()
     {
@@ -92,9 +108,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return array_unique($roles);
     }
 
+    public function addRole(string $role): static
+    {
+        return $this->setRoles(
+            array_merge(
+                $this->roles,
+                [$role]
+            )
+        );
+    }
+
+    public function removeRole(string $role): static
+    {
+        $this->roles = array_filter($this->roles, fn ($r) => $r !== $role);
+        return $this;
+    }
+
     public function setRoles(array $roles): static
     {
-        $this->roles = $roles;
+        $this->roles = array_filter(
+            array_unique($roles),
+            fn ($role) => $this->canAddRole($role)
+        );
 
         return $this;
     }
@@ -172,6 +207,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return null;
     }
 
+    public function getApiKey(): ?AccessToken
+    {
+        /** @var AccessToken $token */
+        foreach ($this->tokens as $token)
+        {
+            if ($token->isPermanent())
+            {
+                return $token;
+            }
+        }
+        return null;
+    }
+
     public function jsonSerialize(): string
     {
         return $this->__toString();
@@ -222,5 +270,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         }
 
         return $this;
+    }
+
+    public function isEnabled(): ?bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): static
+    {
+        $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    protected function canAddRole(string $role): bool
+    {
+        return (static::BUILTIN_ROLES[$role] ?? null) !== false;
     }
 }

@@ -29,6 +29,9 @@ class AccessToken implements \Stringable, \JsonSerializable
     #[ORM\Column(type: 'boolean')]
     private bool $permanent     = false;
 
+    #[ORM\Column(length: 180, nullable: true)]
+    private ?string $name = null;
+
     public function __construct(?User $user = null)
     {
         $this->token = bin2hex(random_bytes(60));
@@ -119,5 +122,17 @@ class AccessToken implements \Stringable, \JsonSerializable
             'token'   => $this->token,
             'expires' => $this->expiresAt,
         ];
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
     }
 }

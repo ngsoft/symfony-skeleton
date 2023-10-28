@@ -1,0 +1,15 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    {% if useVite is defined %}
+        {{ vite_entry_link_tags('app') }}
+    {% endif %}
+{% endblock configured_stylesheets %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    {% if useVite is defined %}
+        {{ vite_entry_script_tags('app') }}
+    {% endif %}
+{% endblock body_javascript %}
