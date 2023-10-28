@@ -94,11 +94,13 @@ class LoginController extends AbstractController
     #[Route('/user/token', 'app_user_token')]
     public function token(UserRepository $repository): JsonResponse
     {
-        if ( ! $this->getUser() instanceof User)
+        $user = $this->getUser();
+
+        if ($user instanceof User)
         {
-            throw new BadCredentialsException();
+            return $this->json($repository->generateOrGetToken($user));
         }
 
-        return $this->json($repository->generateOrGetToken($this->getUser()));
+        throw new BadCredentialsException();
     }
 }

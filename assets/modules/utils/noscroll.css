@@ -1,0 +1,11 @@
+.noscroll
+{
+    overflow: hidden !important;
+    width: 100% !important;
+    padding-right: 8px !important;
+}
+
+.scrollback
+{
+    scroll-behavior: auto !important;
+}
