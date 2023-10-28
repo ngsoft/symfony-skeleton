@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-// src/EventListener/AccessDeniedListener.php
-
 namespace App\EventListener;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -13,13 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class AccessDeniedListener implements EventSubscriberInterface
 {
-    public function __construct(private readonly UrlGeneratorInterface $urlGenerator) {}
-
     public static function getSubscribedEvents(): array
     {
         return [
@@ -38,10 +33,7 @@ class AccessDeniedListener implements EventSubscriberInterface
 
         if ($exception instanceof HttpException && 401 === $exception->getStatusCode())
         {
-            $event->setResponse(new JsonResponse([
-                'error' => 'Invalid credentials.',
-            ], Response::HTTP_UNAUTHORIZED));
-            $event->stopPropagation();
+            $this->setResponse($event, 'Invalid credentials.');
         } elseif (
             $exception instanceof BadCredentialsException
             || $exception instanceof AccessDeniedException
@@ -53,11 +45,16 @@ class AccessDeniedListener implements EventSubscriberInterface
                 || '/user/token' === $request->getPathInfo()
                 || str_contains($request->headers->get('content-type', ''), '/json')
             ) {
-                $event->setResponse(new JsonResponse([
-                    'error' => $exception->getMessage() ?: $exception->getMessageKey(),
-                ], Response::HTTP_UNAUTHORIZED));
-                $event->stopPropagation();
+                $this->setResponse($event, $exception->getMessage() ?: $exception->getMessageKey());
             }
         }
+    }
+
+    protected function setResponse(ExceptionEvent $event, $message): void
+    {
+        $event->setResponse(new JsonResponse([
+            'error' => $message,
+        ], Response::HTTP_UNAUTHORIZED));
+        $event->stopPropagation();
     }
 }

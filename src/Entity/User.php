@@ -9,12 +9,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, \Stringable, \JsonSerializable
+#[UniqueEntity(fields: ['username', 'email'], message: 'There is already an account with this username/email')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Stringable, \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -32,6 +33,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\Column('fullname', length: 255, nullable: true)]
+    private ?string $fullName = null;
+
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    private ?string $email    = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: AccessToken::class)]
     private Collection $tokens;
@@ -168,5 +175,52 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function jsonSerialize(): string
     {
         return $this->__toString();
+    }
+
+    public function isEqualTo(UserInterface $user): bool
+    {
+        if ( ! $user instanceof User)
+        {
+            return false;
+        }
+
+        if ($this->password !== $user->getPassword())
+        {
+            return false;
+        }
+
+        if ($this->username !== $user->getUsername())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getFullName(): string
+    {
+        return $this->fullName ?? $this->username;
+    }
+
+    public function setFullName(string $fullName): static
+    {
+        $this->fullName = $fullName;
+
+        return $this;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email ?? '';
+    }
+
+    public function setEmail(?string $email): static
+    {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL))
+        {
+            $this->email = $email;
+        }
+
+        return $this;
     }
 }

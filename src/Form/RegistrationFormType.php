@@ -7,9 +7,12 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
@@ -21,6 +24,7 @@ class RegistrationFormType extends AbstractType
     {
         $builder
             ->add('username')
+            ->add('email', HiddenType::class)
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped'      => false,
                 'constraints' => [
@@ -50,7 +54,23 @@ class RegistrationFormType extends AbstractType
                 'row_attr' => [
                     'class' => 'text-right',
                 ],
-            ])
+            ])->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event)
+            {
+                $data             = $event->getData();
+                $email            = null;
+                $username         = $data['username'];
+
+                if (filter_var($username, FILTER_VALIDATE_EMAIL))
+                {
+                    $email    = $username;
+                    $username = explode('@', $username)[0];
+                }
+
+                $data['username'] = $username;
+                $data['email']    = $email;
+
+                $event->setData($data);
+            })
         ;
     }
 

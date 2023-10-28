@@ -47,13 +47,22 @@
 
             {# If you want to control the URL the user is redirected to on success
         <input type="hidden" name="_target_path" value="/account"> #}
-            <div class="text-right">
-                <button
-                        class="text-white bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                        type="submit">
-                    Login
-                </button>
+            <div class="flex">
+                <div class="me-auto">
+                    <a href="{{ path('app_register') }}"
+                       class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Create an account</a>
+                </div>
+
+                <div class="text-right">
+                    <button
+                            class="text-white bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            type="submit">
+                        Login
+                    </button>
+                </div>
+
             </div>
+
         </form>
     </div>
 {% endblock %}

@@ -54,6 +54,7 @@ class LoginController extends AbstractController
 
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid())
@@ -74,7 +75,9 @@ class LoginController extends AbstractController
             }
 
             $entityManager->persist($user);
+
             $entityManager->flush();
+
             // do anything else you need here, like send an email
 
             return $this->redirectToRoute('app_login');
@@ -91,7 +94,7 @@ class LoginController extends AbstractController
     #[Route('/user/token', 'app_user_token')]
     public function token(UserRepository $repository): JsonResponse
     {
-        if ( ! $this->getUser())
+        if ( ! $this->getUser() instanceof User)
         {
             throw new BadCredentialsException();
         }

@@ -26,8 +26,10 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    public function __construct(ManagerRegistry $registry, private readonly AccessTokenRepository $tokenRepository)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly AccessTokenRepository $tokenRepository
+    ) {
         parent::__construct($registry, User::class);
     }
 
@@ -93,6 +95,17 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         $em->flush();
         return $valid;
+    }
+
+    public function loadUserByUsernameOrEmail(string $identifier): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.username = :val')
+            ->orWhere('u.email = :val')
+            ->setParameter('val', $identifier)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
 
     //    /**
