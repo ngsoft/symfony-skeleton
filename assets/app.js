@@ -1,6 +1,4 @@
 import './fonts';
-import "./app.scss";
-import 'flowbite';
 
 
 let target;

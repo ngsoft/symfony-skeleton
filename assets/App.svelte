@@ -1,4 +1,6 @@
 <script>
+    import "./app.scss";
+    import 'flowbite';
     import "./_svelte-app.scss";
     import svelteLogo from "./pictures/svelte.svg";
     import viteLogo from "./pictures/vite.svg";

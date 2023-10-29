@@ -55,7 +55,10 @@ class UserCrudController extends AbstractCrudController
         {
             yield TextField::new('plainPassword', Crud::PAGE_NEW === $pageName ? 'Password' : 'Reset Password')
                 ->setFormType(PasswordType::class)
+                // required only for new users, if not empty on edit it will be changed
                 ->setFormTypeOption('required', Crud::PAGE_NEW === $pageName)
+                // empty the field
+                ->setFormTypeOption('attr', ['autocomplete' => 'new-password'])
             ;
         }
 

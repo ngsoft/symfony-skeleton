@@ -218,7 +218,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         /** @var AccessToken $token */
         foreach ($this->tokens as $token)
         {
-            if ( ! $token->isExpired())
+            if ( ! $token->isExpired() && ! $token->isPermanent())
             {
                 return $token;
             }
