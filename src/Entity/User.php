@@ -67,9 +67,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private bool $enabled          = true;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserOption::class, orphanRemoval: true)]
+    private Collection $options;
+
     public function __construct()
     {
-        $this->tokens = new ArrayCollection();
+        $this->tokens  = new ArrayCollection();
+        $this->options = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -315,6 +319,43 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function setEnabled(bool $enabled): static
     {
         $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    /*
+     * @return Collection<int, Option>
+     */
+
+    /**
+     * @return Collection<int, UserOption>
+     */
+    public function getOptions(): Collection
+    {
+        return $this->options;
+    }
+
+    public function addOption(UserOption $option): static
+    {
+        if ( ! $this->options->contains($option))
+        {
+            $this->options->add($option);
+            $option->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOption(UserOption $option): static
+    {
+        if ($this->options->removeElement($option))
+        {
+            // set the owning side to null (unless already changed)
+            if ($option->getUser() === $this)
+            {
+                $option->setUser(null);
+            }
+        }
 
         return $this;
     }

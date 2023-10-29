@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\AccessToken;
+use App\Entity\Option;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -62,6 +63,7 @@ class DashboardController extends AbstractDashboardController
         );
         yield MenuItem::linkToCrud('Users', 'fa-solid fa-users', User::class);
         yield MenuItem::linkToCrud('Tokens', 'fa-solid fa-key', AccessToken::class);
+        yield MenuItem::linkToCrud('Options', 'fa-solid fa-sliders', Option::class);
     }
 
     public function configureActions(): Actions
