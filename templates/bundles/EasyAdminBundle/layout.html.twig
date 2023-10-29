@@ -2,14 +2,10 @@
 
 {% block configured_stylesheets %}
     {{ parent() }}
-    {% if useVite is defined %}
-        {{ vite_entry_link_tags('app') }}
-    {% endif %}
+    {{ vite_entry_link_tags('app') }}
 {% endblock configured_stylesheets %}
 
 {% block body_javascript %}
     {{ parent() }}
-    {% if useVite is defined %}
-        {{ vite_entry_script_tags('app') }}
-    {% endif %}
+    {{ vite_entry_script_tags('app') }}
 {% endblock body_javascript %}

@@ -1,37 +1,39 @@
 {
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "dev": "run-p dev:**",
-        "build": "vite build",
-        "dev:serve": "symfony serve --no-tls",
-        "dev:vite": "vite",
-        "symfony:router": "php bin/console debug:router",
-        "symfony:database": "php bin/console doctrine:database:create",
-        "symfony:entity": "php bin/console make:entity",
-        "symfony:controller": "php bin/console make:controller",
-        "symfony:migration": "php bin/console make:migration",
-        "symfony:migrate": "php bin/console doctrine:migrations:migrate",
-        "symfony:crud": "php bin/console make:crud"
-    },
-    "license": "MIT",
-    "devDependencies": {
-        "@sveltejs/vite-plugin-svelte": "^2.4.6",
-        "autoprefixer": "^10.4.16",
-        "npm-run-all": "^4.1.5",
-        "sass": "^1.68.0",
-        "svelte": "^4.2.1",
-        "unplugin-fonts": "^1.0.3",
-        "vite": "^4.0",
-        "vite-plugin-symfony": "^4.0"
-    },
-    "dependencies": {
-        "@fontsource/roboto": "^5.0.8",
-        "@popperjs/core": "^2.11.8",
-        "aos": "^2.3.4",
-        "flowbite": "^1.8.1",
-        "flowbite-svelte": "^0.44.18",
-        "tailwind-merge": "^1.14.0",
-        "tailwindcss": "^3.3.3"
-    }
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "run-s server:stop serve:dev",
+    "build": "vite build",
+    "serve:dev": "run-p dev:**",
+    "dev:serve": "symfony serve --no-tls",
+    "dev:vite": "vite",
+    "server:stop": "symfony server:stop",
+    "symfony:router": "php bin/console debug:router",
+    "symfony:database": "php bin/console doctrine:database:create",
+    "symfony:entity": "php bin/console make:entity",
+    "symfony:controller": "php bin/console make:controller",
+    "symfony:migration": "php bin/console make:migration",
+    "symfony:migrate": "php bin/console doctrine:migrations:migrate",
+    "symfony:crud": "php bin/console make:crud"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^2.4.6",
+    "autoprefixer": "^10.4.16",
+    "npm-run-all": "^4.1.5",
+    "sass": "^1.68.0",
+    "svelte": "^4.2.1",
+    "unplugin-fonts": "^1.0.3",
+    "vite": "^4.0",
+    "vite-plugin-symfony": "^4.0"
+  },
+  "dependencies": {
+    "@fontsource/roboto": "^5.0.8",
+    "@popperjs/core": "^2.11.8",
+    "aos": "^2.3.4",
+    "flowbite": "^1.8.1",
+    "flowbite-svelte": "^0.44.18",
+    "tailwind-merge": "^1.14.0",
+    "tailwindcss": "^3.3.3"
+  }
 }

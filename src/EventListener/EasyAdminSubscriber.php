@@ -17,36 +17,32 @@ class EasyAdminSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            BeforeEntityPersistedEvent::class => ['addUser', 2],
-            BeforeEntityUpdatedEvent::class   => ['updateUser', 2],
+            BeforeEntityPersistedEvent::class => ['addEntity', 2],
+            BeforeEntityUpdatedEvent::class   => ['updateEntity', 2],
         ];
     }
 
-    public function updateUser(BeforeEntityUpdatedEvent $event): void
+    public function updateEntity(BeforeEntityUpdatedEvent $event): void
     {
-        $user = $event->getEntityInstance();
+        $entity = $event->getEntityInstance();
 
-        if ( ! $user instanceof User)
+        if ($entity instanceof User)
         {
-            return;
-        }
-
-        if ( ! empty($user->getPlainPassword()))
-        {
-            $this->setPassword($user);
+            if ( ! empty($entity->getPlainPassword()))
+            {
+                $this->setPassword($entity);
+            }
         }
     }
 
-    public function addUser(BeforeEntityPersistedEvent $event): void
+    public function addEntity(BeforeEntityPersistedEvent $event): void
     {
-        $user = $event->getEntityInstance();
+        $entity = $event->getEntityInstance();
 
-        if ( ! $user instanceof User)
+        if ($entity instanceof User)
         {
-            return;
+            $this->setPassword($entity);
         }
-
-        $this->setPassword($user);
     }
 
     protected function setPassword(User $user): void

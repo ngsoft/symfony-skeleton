@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Option;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 
 /**
  * @extends ServiceEntityRepository<Option>
@@ -20,128 +21,189 @@ class OptionRepository extends ServiceEntityRepository
 {
     private static array $options = [];
 
-    private static array $counts  = [];
+    private static array $has     = [];
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly LoggerInterface $logger)
     {
         parent::__construct($registry, Option::class);
-
-        //        if (empty(self::$options))
-        //        {
-        //            if ( ! $this->hasOption('autoload'))
-        //            {
-        //                $this->getEntityManager()->persist(
-        //                    (new Option())
-        //                        ->setName('autoload')
-        //                        ->setDescription('Autoload Options on each requests')
-        //                        ->setValue(true)
-        //                );
-        //                $this->getEntityManager()->flush();
-        //            }
-        //
-        //            if ($this->getOption('autoload'))
-        //            {
-        //                foreach ($this->findBy(['autoload' => true, 'user' => null]) as $option)
-        //                {
-        //                    self::$options[$option->getName()] = $option->getValue();
-        //                }
-        //            }
-        //        }
+        $this->initialize();
     }
 
-    //    public function getOption(string $name, mixed $defaultValue = null): mixed
-    //    {
-    //        $value ??= self::$options[$name] ??= $this->findOneBy(['name' => $name, 'user' => null])?->getValue();
-    //
-    //        if (null === $value)
-    //        {
-    //            if (null !== $value = value($defaultValue))
-    //            {
-    //                $this->addOption($name, $value);
-    //                self::$options[$name] = $value;
-    //            }
-    //        }
-    //
-    //        return $value;
-    //    }
+    /**
+     * Set up a new Option.
+     */
+    public function setUpOption(Option $option): Option
+    {
+        if (null === $option->getId() && ! $this->hasOption($option))
+        {
+            if (empty($option->getName()))
+            {
+                $this->logger->warning('Cannot set up Option, name is empty');
 
-    //    public function hasOption(string $name): bool
-    //    {
-    //        $cache = &self::$counts;
-    //
-    //        if (empty($cache[$name]))
-    //        {
-    //            $cache[$name] = (1 === $this->count(['name' => $name, 'user' => null]));
-    //        }
-    //        return $cache[$name];
-    //    }
+                return $option;
+            }
 
-    //    public function addOption(string $name, mixed $value, ?bool $autoload = null): void
-    //    {
-    //        $this->addOptions([$name => $value], $autoload);
-    //    }
+            $this->getEntityManager()->persist($option);
+            $this->getEntityManager()->flush();
+        }
 
-    //    public function addOptions(array $values, ?bool $autoload = null): void
-    //    {
-    //        $newValues = [];
-    //
-    //        foreach ($values as $name => $value)
-    //        {
-    //            if ($this->hasOption($name))
-    //            {
-    //                continue;
-    //            }
-    //            $newValues[$name] = $value;
-    //        }
-    //
-    //        if (count($newValues))
-    //        {
-    //            $this->setOptions($newValues, $autoload);
-    //        }
-    //    }
+        if (is_int($option->getId()))
+        {
+            self::$options[$option->getName()] = $option;
+            self::$has[$option->getName()]     = true;
+            return $option;
+        }
 
-    //    public function setOptions(array $values, ?bool $autoload = null): void
-    //    {
-    //        $autoload ??= $this->getOption('autoload');
-    //
-    //        try
-    //        {
-    //            foreach ($values as $name => $value)
-    //            {
-    //                $option               = $this->findOneBy(['name' => $name, 'user' => null]) ?? new Option();
-    //                $this->getEntityManager()->persist(
-    //                    $option
-    //                        ->setAutoload($autoload)
-    //                        ->setName($name)
-    //                        ->setValue($value)
-    //                );
-    //
-    //                self::$options[$name] = $value;
-    //            }
-    //        } finally
-    //        {
-    //            $this->getEntityManager()->flush();
-    //        }
-    //    }
+        return $this->getOptionEntity($option);
+    }
 
-    //    public function setOption(string $name, mixed $value, ?bool $autoload = null): void
-    //    {
-    //        $this->setOptions([$name => $value], $autoload);
-    //    }
+    /**
+     * Checks if Option exists.
+     */
+    public function hasOption(Option|string $name): bool
+    {
+        $name = $this->getName($name);
 
-    //    public function deleteOption(string $name): void
-    //    {
-    //        if ($this->hasOption($name))
-    //        {
-    //            $this->getEntityManager()
-    //                ->createQueryBuilder()
-    //                ->delete(Option::class, 'o')
-    //                ->where('o.name = :name')
-    //                ->setParameter('name', $name)
-    //                ->getQuery()->getResult()
-    //            ;
-    //        }
-    //
-    //        unset(self::$options[$name], self::$counts[$name]);
-    //    }
+        if ( ! isset(self::$has[$name]))
+        {
+            self::$has[$name] = (1 === $this->count(['name' => $name]));
+        }
+
+        return self::$has[$name];
+    }
+
+    /**
+     * Get Value for an option.
+     */
+    public function getOption(Option|string $name, mixed $defaultValue = null): mixed
+    {
+        $name = $this->getName($name);
+
+        if ($this->hasOption($name))
+        {
+            $entity = self::$options[$name] ??= $this->findOneBy(['name' => $name]);
+            $value  = $entity->getValue();
+        } elseif (null !== $value = value($defaultValue))
+        {
+            $this->addOption($name, $value);
+        }
+        return $value;
+    }
+
+    /**
+     * Adds An Option if it does not exist.
+     */
+    public function addOption(Option|string $name, mixed $value, bool $autoload = true): void
+    {
+        if ($this->hasOption($name))
+        {
+            return;
+        }
+
+        $this->setOptions([$this->getName($name) => $value], $autoload);
+    }
+
+    public function setOption(Option|string $name, mixed $value, bool $autoload = true): void
+    {
+        $this->setOptions([$this->getName($name) => $value], $autoload);
+    }
+
+    /**
+     * Set multiples options.
+     */
+    public function setOptions(array $options, bool $autoload = true): void
+    {
+        $added = [];
+
+        foreach ($options as $name => $value)
+        {
+            $value   = value($value);
+
+            if (null === $value)
+            {
+                $this->removeOption($name);
+                continue;
+            }
+
+            $entity  = $this->getOptionEntity($name) ?? Option::new($name, $value);
+            $entity->setAutoload($autoload);
+            $added[] = $entity;
+            $this->resetOption($name);
+        }
+
+        if ( ! empty($added))
+        {
+            foreach ($added as $option)
+            {
+                $this->getEntityManager()->persist($option);
+            }
+
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function removeOption(Option|string $name): void
+    {
+        $this->getEntityManager()
+            ->createQueryBuilder()
+            ->delete(Option::class, 'o')
+            ->where('o.name = :name')
+            ->setParameter('name', $name = $this->getName($name))
+            ->getQuery()->execute()
+        ;
+
+        $this->resetOption($name);
+    }
+
+    /**
+     * Autoload options.
+     */
+    private function initialize(): void
+    {
+        if (empty(self::$has))
+        {
+            $this->setUpOption(
+                Option::new(
+                    'autoload',
+                    true,
+                    'Autoload Options When Repository is loaded first'
+                )->setAutoload(false)
+            );
+
+            if (true === $this->getOption('autoload'))
+            {
+                foreach ($this->findBy(['autoload' => true]) as $option)
+                {
+                    self::$options[$name = $option->getName()] = $option;
+                    self::$has[$name]                          = true;
+                }
+            }
+        }
+    }
+
+    private function getOptionEntity(Option|string $name): ?Option
+    {
+        $name = $this->getName($name);
+        return self::$options[$name] ??= $this->findOneBy(['name' => $name]);
+    }
+
+    private function getName(Option|string $name): string
+    {
+        if ($name instanceof Option)
+        {
+            if (null === $name = $name->getName())
+            {
+                throw new \ValueError('$name is null');
+            }
+
+            return $name;
+        }
+
+        return $name;
+    }
+
+    private function resetOption(string $name): void
+    {
+        unset(self::$options[$name], self::$has[$name]);
+    }
 }
