@@ -1,15 +1,15 @@
 import './fonts';
 import "./app.scss";
-import "./_svelte-app.scss";
 import 'flowbite';
 
-import App from './App.svelte';
 
-const target = document.getElementById('app') ?? document.createElement('div');
+let target;
+
+if ((target = document.getElementById('app'))) {
+
+    // dynamic import
+    const App = (await import('./App.svelte')).default;
+    new App({target});
+}
 
 
-const app = new App({
-    target,
-});
-
-export default app;

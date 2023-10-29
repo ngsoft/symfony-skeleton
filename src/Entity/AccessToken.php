@@ -30,7 +30,7 @@ class AccessToken implements \Stringable, \JsonSerializable
     private bool $permanent     = false;
 
     #[ORM\Column(length: 180, nullable: true)]
-    private ?string $name = null;
+    private ?string $name       = null;
 
     public function __construct(?User $user = null)
     {
@@ -106,6 +106,14 @@ class AccessToken implements \Stringable, \JsonSerializable
     public function setPermanent(bool $isPermanent): static
     {
         $this->permanent = $isPermanent;
+
+        if ($isPermanent)
+        {
+            $this->expiresAt = date_create_immutable('+1 year');
+        } else
+        {
+            $this->renewExpiresAt();
+        }
 
         return $this;
     }

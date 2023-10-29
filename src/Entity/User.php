@@ -13,18 +13,20 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+use function NGSOFT\Tools\iterable_to_array;
+
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['username', 'email'], message: 'There is already an account with this username/email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Stringable, \JsonSerializable
 {
-    public const ROLE_USER        = 'ROLE_USER';
-    public const ROLE_ADMIN       = 'ROLE_ADMIN';
-    public const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
+    public const ROLE_USER         = 'ROLE_USER';
+    public const ROLE_ADMIN        = 'ROLE_ADMIN';
+    public const ROLE_SUPER_ADMIN  = 'ROLE_SUPER_ADMIN';
 
     /**
      * @var array<string,bool> role, writable
      */
-    public const BUILTIN_ROLES    = [
+    public const BUILTIN_ROLES     = [
         self::ROLE_USER        => false,
         self::ROLE_ADMIN       => true,
         self::ROLE_SUPER_ADMIN => true,
@@ -33,31 +35,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id              = null;
+    private ?int $id               = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    private ?string $username     = null;
+    private ?string $username      = null;
 
     #[ORM\Column]
-    private array $roles          = [];
+    private array $roles           = [];
 
     /**
      * The hashed password.
      */
     #[ORM\Column]
-    private ?string $password     = null;
+    private ?string $password      = null;
+
+    /**
+     * No mapping for that property
+     * It is used by easyadmin to change or create a password.
+     */
+    private ?string $plainPassword = null;
 
     #[ORM\Column('fullname', length: 255, nullable: true)]
-    private ?string $fullName     = null;
+    private ?string $fullName      = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: true)]
-    private ?string $email        = null;
+    private ?string $email         = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: AccessToken::class)]
     private Collection $tokens;
 
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
-    private bool $enabled         = true;
+    private bool $enabled          = true;
 
     public function __construct()
     {
@@ -155,7 +163,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): static
+    {
+        $this->plainPassword = $plainPassword;
+        return $this;
     }
 
     /**
@@ -220,6 +239,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return null;
     }
 
+    public function getPermanentTokens(): array
+    {
+        return array_filter(
+            iterable_to_array($this->getTokens()),
+            fn (AccessToken $t) => $t->isPermanent()
+        );
+    }
+
+    public function getSessionTokens(): array
+    {
+        return array_filter(
+            iterable_to_array($this->getTokens()),
+            fn (AccessToken $t) => ! $t->isPermanent() && ! $t->isExpired()
+        );
+    }
+
     public function jsonSerialize(): string
     {
         return $this->__toString();
@@ -247,10 +282,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function getFullName(): string
     {
-        return $this->fullName ?? $this->username;
+        return $this->fullName ?? $this->username ?? '';
     }
 
-    public function setFullName(string $fullName): static
+    public function setFullName(?string $fullName): static
     {
         $this->fullName = $fullName;
 

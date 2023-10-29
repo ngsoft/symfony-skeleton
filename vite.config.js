@@ -32,6 +32,7 @@ export default defineConfig({
         }),
     ],
     build: {
+        target: "esnext",
         rollupOptions: {
             input: {
                 app: "./assets/app.js"

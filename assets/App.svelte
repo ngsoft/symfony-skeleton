@@ -1,4 +1,5 @@
 <script>
+    import "./_svelte-app.scss";
     import svelteLogo from "./pictures/svelte.svg";
     import viteLogo from "./pictures/vite.svg";
     import Counter from "./lib/Counter.svelte";

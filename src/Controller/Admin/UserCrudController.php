@@ -9,11 +9,13 @@ use App\Traits\CanTranslate;
 use App\Utils;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class UserCrudController extends AbstractCrudController
 {
@@ -30,7 +32,7 @@ class UserCrudController extends AbstractCrudController
 
         foreach (User::BUILTIN_ROLES as $role => $writable)
         {
-            if (Crud::PAGE_EDIT === $pageName && ! $writable)
+            if (in_array($pageName, [Crud::PAGE_EDIT, Crud::PAGE_NEW]) && ! $writable)
             {
                 continue;
             }
@@ -42,14 +44,27 @@ class UserCrudController extends AbstractCrudController
             $roles[Utils::capitalize($this->translate($role))] = $role;
         }
 
-        yield IdField::new('id')
-            ->setFormTypeOptions([
-                'disabled' => true,
-            ])
-        ;
+        if (in_array($pageName, [Crud::PAGE_INDEX, Crud::PAGE_DETAIL]))
+        {
+            yield IdField::new('id');
+        }
+
         yield TextField::new('username', 'Username');
-        yield EmailField::new('email', 'E-Mail');
-        yield TextField::new('fullname', 'Full Name');
+
+        if (in_array($pageName, [Crud::PAGE_NEW, Crud::PAGE_EDIT]))
+        {
+            yield TextField::new('plainPassword', Crud::PAGE_NEW === $pageName ? 'Password' : 'Reset Password')
+                ->setFormType(PasswordType::class)
+                ->setFormTypeOption('required', Crud::PAGE_NEW === $pageName)
+            ;
+        }
+
+        yield EmailField::new('email', 'E-Mail')
+            ->setFormTypeOptions(['required' => false])
+        ;
+        yield TextField::new('fullname', 'Full Name')
+            ->setFormTypeOptions(['required' => false])
+        ;
         yield BooleanField::new('enabled')
             ->renderAsSwitch(false)
         ;
@@ -71,7 +86,12 @@ class UserCrudController extends AbstractCrudController
             ;
             yield BooleanField::new('apiKey')
                 ->renderAsSwitch(false)
-                ->formatValue(fn ($value) => ! empty($value));
+                ->formatValue(fn ($value) => ! empty($value))
+            ;
+        } elseif (Crud::PAGE_DETAIL === $pageName)
+        {
+            yield ArrayField::new('permanentTokens', 'Api Keys');
+            yield ArrayField::new('sessionTokens', 'Tokens');
         }
     }
 }

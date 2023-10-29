@@ -56,18 +56,16 @@ class RegistrationFormType extends AbstractType
                 ],
             ])->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event)
             {
-                $data             = $event->getData();
-                $email            = null;
-                $username         = $data['username'];
+                $data          = $event->getData();
+                $email         = null;
+                $username      = $data['username'];
 
                 if (filter_var($username, FILTER_VALIDATE_EMAIL))
                 {
-                    $email    = $username;
-                    $username = explode('@', $username)[0];
+                    $email = $username;
                 }
 
-                $data['username'] = $username;
-                $data['email']    = $email;
+                $data['email'] = $email;
 
                 $event->setData($data);
             })
