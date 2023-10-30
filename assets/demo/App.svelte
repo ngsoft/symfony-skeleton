@@ -1,14 +1,13 @@
 <script>
-    import './tailwind';
-    import "./_svelte-app.scss";
-    import svelteLogo from "./pictures/svelte.svg";
-    import viteLogo from "./pictures/vite.svg";
+    import "./demo.scss";
+    import svelteLogo from "../pictures/svelte.svg";
+    import viteLogo from "../pictures/vite.svg";
     import Counter from "./lib/Counter.svelte";
 
 </script>
 
 <main>
-    <div class="flex justify-center">
+    <div class="d-flex justify-content-center">
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
             <img src={viteLogo} class="logo" alt="Vite Logo"/>
         </a>
@@ -18,7 +17,7 @@
     </div>
     <h1>Vite + Svelte</h1>
 
-    <div class="card">
+    <div class="_card">
         <Counter/>
     </div>
 
@@ -33,24 +32,25 @@
     <p class="read-the-docs">Click on the Vite and Svelte logos to learn more</p>
 </main>
 
-<style>
-    .logo {
-        box-sizing: content-box;
-        height: 6em;
-        padding: 1.5em;
-        will-change: filter;
-        transition: filter 300ms;
-    }
+<style lang="scss">
 
-    .logo:hover {
-        filter: drop-shadow(0 0 2em #646cffaa);
-    }
+  .logo {
+    box-sizing: content-box;
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
+  }
 
-    .logo.svelte:hover {
-        filter: drop-shadow(0 0 2em #ff3e00aa);
-    }
+  .logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+  }
 
-    .read-the-docs {
-        color: #888;
-    }
+  .logo.svelte:hover {
+    filter: drop-shadow(0 0 2em #ff3e00aa);
+  }
+
+  .read-the-docs {
+    color: #888;
+  }
 </style>

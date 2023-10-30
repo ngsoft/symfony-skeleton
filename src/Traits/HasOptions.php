@@ -18,7 +18,7 @@ trait HasOptions
     }
 
     #[Required]
-    public function setOptionManager(OptionManager $optionManager): static
+    public function setOptionManager(OptionManager $optionManager):void
     {
         $this->optionManager = $optionManager;
 
@@ -40,8 +40,6 @@ trait HasOptions
                 throw new \ValueError('Invalid value for ' . get_class($this) . '::optionSetup()');
             }
         }
-
-        return $this;
     }
 
     abstract public static function optionSetup(): array;

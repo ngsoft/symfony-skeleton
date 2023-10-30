@@ -12,23 +12,23 @@ export default defineConfig({
         svelte(),
         symfonyPlugin(),
         Unfonts({
+            display: 'auto',
             fontsource: {
                 families: [
                     {
-                        // Roboto normal
-                        name: 'Roboto',
-                        weights: [300, 400, 500, 700, 900],
+                        name: 'Poppins',
+                        weights: [300, 400, 500, 600, 700, 800, 900],
                         subset: 'latin-ext'
                     },
                     {
-                        // Roboto italic
-                        name: 'Roboto',
-                        weights: [300, 400, 500, 700, 900],
+                        name: 'Poppins',
+                        weights: [300, 400, 500, 600, 700, 800, 900],
                         styles: ['italic'],
                         subset: 'latin-ext'
-                    },
-                ]
-            }
+                    }
+                ],
+            },
+
         }),
     ],
     build: {

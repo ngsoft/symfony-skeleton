@@ -38,6 +38,7 @@ class AccessTokenCrudController extends AbstractCrudController
         ;
 
         yield AssociationField::new('user')->autocomplete()
-            ->setFormTypeOption('required', true);
+            ->setFormTypeOption('required', true)
+        ;
     }
 }

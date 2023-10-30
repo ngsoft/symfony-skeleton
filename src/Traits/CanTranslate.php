@@ -17,10 +17,9 @@ trait CanTranslate
     }
 
     #[Required]
-    public function setTranslator(TranslatorInterface $translator): CanTranslate
+    public function setTranslator(TranslatorInterface $translator): void
     {
         $this->translator = $translator;
-        return $this;
     }
 
     public function translate(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
