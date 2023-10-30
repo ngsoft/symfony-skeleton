@@ -3,6 +3,9 @@
     import svelteLogo from "../pictures/svelte.svg";
     import viteLogo from "../pictures/vite.svg";
     import Counter from "./lib/Counter.svelte";
+    import Micon from "../components/Micon.svelte";
+    import {MATERIAL_OUTLINED} from "../fonts/index.js";
+
 
 </script>
 
@@ -22,6 +25,7 @@
     </div>
 
     <p>
+        <Micon name="info" variant={MATERIAL_OUTLINED}></Micon>
         Check out <a
             href="https://github.com/sveltejs/kit#readme"
             target="_blank"

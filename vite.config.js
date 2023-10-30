@@ -25,7 +25,12 @@ export default defineConfig({
                         weights: [300, 400, 500, 600, 700, 800, 900],
                         styles: ['italic'],
                         subset: 'latin-ext'
-                    }
+                    },
+                    'Material Icons',
+                    'Material Icons Round',
+                    'Material Icons Outlined',
+                    'Material Icons Sharp',
+                    'Material Icons Two Tone',
                 ],
             },
 

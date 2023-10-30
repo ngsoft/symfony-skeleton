@@ -29,8 +29,12 @@
     "vite-plugin-symfony": "^4.0"
   },
   "dependencies": {
+    "@fontsource/material-icons": "^5.0.7",
+    "@fontsource/material-icons-outlined": "^5.0.7",
+    "@fontsource/material-icons-round": "^5.0.7",
+    "@fontsource/material-icons-sharp": "^5.0.7",
+    "@fontsource/material-icons-two-tone": "^5.0.7",
     "@fontsource/poppins": "^5.0.8",
-    "@popperjs/core": "^2.11.8",
     "aos": "^2.3.4"
   }
 }
