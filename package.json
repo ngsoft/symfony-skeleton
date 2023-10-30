@@ -14,7 +14,8 @@
     "symfony:controller": "php bin/console make:controller",
     "symfony:migration": "php bin/console make:migration",
     "symfony:migrate": "php bin/console doctrine:migrations:migrate",
-    "symfony:crud": "php bin/console make:crud"
+    "symfony:crud": "php bin/console make:crud",
+    "symfony:cache:clear": "php bin/console cache:clear"
   },
   "license": "MIT",
   "devDependencies": {

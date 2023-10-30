@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\AccessToken;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
+use App\Traits\HasOptions;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,10 +17,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-class LoginController extends AbstractController
+class SecurityController extends AbstractController
 {
+    use HasOptions;
+
+    public static function optionSetup(): array
+    {
+        return [
+            ['user.can_register', true, 'Registration is enabled'],
+            ['user.max_register', 0, 'User Registration Limit (0 is unlimited)'],
+        ];
+    }
+
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils, UserRepository $repository): Response
     {
@@ -34,7 +48,7 @@ class LoginController extends AbstractController
 
         $error        = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
-        return $this->render('login/login.html.twig', [
+        return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error'         => $error,
         ]);
@@ -50,6 +64,19 @@ class LoginController extends AbstractController
         if (null !== $this->getUser())
         {
             return $this->redirectToRoute('app_welcome');
+        }
+
+        if (false === $this->getOptionManager()->getItem('user.can_register'))
+        {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if (($maxUsers = $this->getOptionManager()->getItem('user.max_register')) > 0)
+        {
+            if ($repository->countUsers() >= $maxUsers)
+            {
+                return $this->redirectToRoute('app_login');
+            }
         }
 
         $user = new User();
@@ -83,7 +110,7 @@ class LoginController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        return $this->render('login/register.html.twig', [
+        return $this->render('security/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
     }
@@ -102,5 +129,33 @@ class LoginController extends AbstractController
         }
 
         throw new BadCredentialsException();
+    }
+
+    #[Route('/api/login', name: 'api_login')]
+    public function apiLogin(#[CurrentUser] ?User $user, EntityManagerInterface $em): JsonResponse
+    {
+        if (null === $user)
+        {
+            return $this->json([
+                'error' => 'missing credentials',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $token = $user->getToken() ?? new AccessToken($user);
+        $token->renewExpiresAt();
+
+        $em->persist($token);
+        $em->flush();
+
+        return $this->json($token);
+    }
+
+    #[IsGranted('IS_AUTHENTICATED_FULLY', statusCode: 401)]
+    #[Route('/api/user', name: 'api_user')]
+    public function apiUser(): JsonResponse
+    {
+        return $this->json([
+            'result' => null !== $this->getUser(),
+        ]);
     }
 }

@@ -32,7 +32,6 @@ class OptionCrudController extends AbstractCrudController
         }
 
         yield TextField::new('description')->setFormTypeOption('required', Crud::PAGE_NEW === $pageName);
-        yield TextField::new('description')->setFormTypeOption('required', Crud::PAGE_NEW === $pageName);
 
         if ( ! $isEdit)
         {

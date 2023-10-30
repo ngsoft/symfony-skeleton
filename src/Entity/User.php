@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use function NGSOFT\Tools\iterable_to_array;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['username', 'email'], message: 'There is already an account with this username/email')]
+#[UniqueEntity(fields: ['username'], message: 'There is already an account with this username/email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Stringable, \JsonSerializable
 {
     public const ROLE_USER         = 'ROLE_USER';
@@ -37,7 +37,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column]
     private ?int $id               = null;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(length: 180)]
     private ?string $username      = null;
 
     #[ORM\Column]
@@ -58,7 +58,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column('fullname', length: 255, nullable: true)]
     private ?string $fullName      = null;
 
-    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $email         = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: AccessToken::class)]

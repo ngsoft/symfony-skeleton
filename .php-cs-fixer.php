@@ -3,10 +3,9 @@
 declare(strict_types=1);
 
 return (new \PhpCsFixer\Config())
-
     ->setRiskyAllowed(true)
     ->setUsingCache(true)
-    ->setCacheFile(getcwd() . DIRECTORY_SEPARATOR . '.php-cs-fixer.cache')
+    ->setCacheFile(__DIR__ . DIRECTORY_SEPARATOR . '.php-cs-fixer.cache')
     ->setRules(
         [
             '@PSR12'                              => true,

@@ -7,7 +7,6 @@ namespace App\Repository;
 use App\Entity\AccessToken;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -48,26 +47,28 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    /**
-     * Checks if db has at least one admin.
-     */
-    public function hasUser(): bool
+    public function countUsers(): int
     {
         try
         {
             return $this
                 ->createQueryBuilder('u')
-                ->select('count(u.id)')
+                ->select('count(u.username)')
                 ->getQuery()
-                ->getSingleScalarResult() > 0
+                ->getSingleScalarResult()
             ;
-        } catch (NoResultException $e)
+        } catch (NoResultException)
         {
-            return false;
-        } catch (NonUniqueResultException $e)
-        {
-            return true;
+            return 0;
         }
+    }
+
+    /**
+     * Checks if db has at least one admin.
+     */
+    public function hasUser(): bool
+    {
+        return $this->countUsers() > 0;
     }
 
     public function generateOrGetToken(User $user): AccessToken

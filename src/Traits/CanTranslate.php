@@ -4,14 +4,27 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
+use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 trait CanTranslate
 {
-    public function __construct(private readonly TranslatorInterface $translator) {}
+    private TranslatorInterface $translator;
+
+    public function getTranslator(): TranslatorInterface
+    {
+        return $this->translator;
+    }
+
+    #[Required]
+    public function setTranslator(TranslatorInterface $translator): CanTranslate
+    {
+        $this->translator = $translator;
+        return $this;
+    }
 
     public function translate(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
-        return $this->translator->trans($id, $parameters, $domain, $locale);
+        return $this->getTranslator()->trans($id, $parameters, $domain, $locale);
     }
 }

@@ -32,7 +32,7 @@ class OptionRepository extends ServiceEntityRepository
     /**
      * Set up a new Option.
      */
-    public function setUpOption(Option $option): Option
+    public function setUpOption(Option $option): bool
     {
         if (null === $option->getId() && ! $this->hasOption($option))
         {
@@ -40,7 +40,7 @@ class OptionRepository extends ServiceEntityRepository
             {
                 $this->logger->warning('Cannot set up Option, name is empty');
 
-                return $option;
+                return false;
             }
 
             $this->getEntityManager()->persist($option);
@@ -51,10 +51,10 @@ class OptionRepository extends ServiceEntityRepository
         {
             self::$options[$option->getName()] = $option;
             self::$has[$option->getName()]     = true;
-            return $option;
+            return true;
         }
 
-        return $this->getOptionEntity($option);
+        return $this->hasOption($option->getName());
     }
 
     /**
