@@ -10,7 +10,7 @@
 </script>
 
 <main>
-    <div class="d-flex justify-content-center">
+    <div class="flex justify-center">
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
             <img src={viteLogo} class="logo" alt="Vite Logo"/>
         </a>

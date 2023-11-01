@@ -1,0 +1,32 @@
+$done: false;
+
+
+@mixin alert($variant, $done: false) {
+
+  @if $done == false {
+
+    .alert {
+      @apply mb-3 rounded-lg px-6 py-5;
+      @apply inline-flex w-full items-center select-none text-base;
+      @apply border-[1px] border-solid;
+    }
+
+  }
+
+  .alert-#{$variant} {
+
+    @apply bg-#{$variant}-100 dark:bg-#{$variant}-900;
+    @apply text-#{$variant}-700 dark:text-#{$variant}-400;
+    @apply border-#{$variant}-300 dark:border-#{$variant}-500;
+
+
+    .alert-link {
+      @apply underline;
+      @apply font-bold;
+      @apply text-#{$variant}-900;
+      @apply dark:text-#{$variant}-400
+    }
+  }
+
+}
+

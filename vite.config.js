@@ -19,14 +19,15 @@ export default defineConfig({
                     {
                         name: 'Poppins',
                         weights: [300, 400, 500, 600, 700, 800, 900],
-                        subset: 'latin-ext'
+
                     },
                     {
                         name: 'Poppins',
                         weights: [300, 400, 500, 600, 700, 800, 900],
                         styles: ['italic'],
-                        subset: 'latin-ext'
+
                     },
+
                     'Material Icons',
                     'Material Icons Round',
                     'Material Icons Outlined',

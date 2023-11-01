@@ -5,82 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <title>{% block title %}Welcome!{% endblock %}</title>
-
-    <script type="text/javascript">
-        /**
-         * @link https://tailwindcss.com/docs/dark-mode
-         */
-        (function (global) {
-            let theme;
-            const
-                mediaDarkMode = matchMedia('(prefers-color-scheme: dark)'),
-                setDarkMode = enabled => {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.removeAttribute('data-mode');
-                    document.documentElement.removeAttribute('data-bs-theme');
-                    if (enabled) {
-                        document.documentElement.classList.add('dark');
-                        document.documentElement.setAttribute('data-mode', 'dark');
-                        document.documentElement.setAttribute('data-bs-theme', 'dark');
-                    }
-                },
-                detectDarkMode = () => {
-                    theme = localStorage.getItem('theme');
-                    setDarkMode(
-                        theme === 'dark' || (null === theme && mediaDarkMode.matches)
-                    );
-                };
-
-            /**
-             * detects os changes
-             */
-            mediaDarkMode.addEventListener('change', e => {
-                if (localStorage.getItem('theme') === null) {
-                    setDarkMode(e.matches);
-                }
-            });
-
-            /**
-             * Detects change from other tabs
-             */
-            addEventListener('storage', () => {
-                if (theme !== localStorage.getItem('theme')) {
-                    detectDarkMode();
-                }
-            });
-
-
-            /**
-             * Global Set dark mode
-             * @param {Boolean|null} value if null os settings, else enable/disable
-             */
-            global.enableDarkMode = function enableDarkMode(value) {
-                if (null === value) {
-                    localStorage.removeItem('theme');
-                } else if (value) {
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    localStorage.setItem('theme', 'light');
-                }
-
-                // update current page
-                detectDarkMode();
-            }
-
-
-            // finally detect
-            detectDarkMode();
-
-        })(window);
-    </script>
-    {% block head %}
-        <link rel="icon"
-              href="{{ asset('assets/pictures/svelte.svg', 'vite') }}">
-    {% endblock head %}
+    {% block head %}{% endblock head %}
     {% block stylesheets %}
         {{ vite_entry_link_tags('app') }}
     {% endblock stylesheets %}
-
 </head>
 <body>
 {% block body %}{% endblock %}

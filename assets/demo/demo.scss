@@ -9,7 +9,7 @@ body {
   display: flex;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  min-height: calc(100vh - 68px);
 }
 
 #app {
@@ -44,7 +44,8 @@ body {
     font-size: 1em;
     font-weight: 500;
     font-family: inherit;
-    background-color: #1a1a1a;
+    background: #1a1a1a;
+    color: #f9f9f9;
     cursor: pointer;
     transition: border-color 0.25s;
   }
@@ -58,12 +59,20 @@ body {
     outline: 4px auto -webkit-focus-ring-color;
   }
 
-  @media (prefers-color-scheme: light) {
+
+}
+
+[data-mode="dark"] {
+  #app {
     a:hover {
       color: #747bff;
     }
+
     button {
-      background-color: #f9f9f9;
+      background: #f9f9f9;
+      color: #000;
+
     }
   }
+
 }

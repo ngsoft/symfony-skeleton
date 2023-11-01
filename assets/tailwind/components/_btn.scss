@@ -1,0 +1,86 @@
+$colors: (
+        'primary' '#3b71ca' '59,113,202',
+        'success' '#14a44d',
+        'danger' '#dc4c64',
+        'warning' '#e4a11b',
+        'info' '#54b4d3'
+);
+
+
+@mixin btn($variant, $done: false) {
+
+  @if $done == false {
+    .btn {
+      @apply px-4 pb-[7px] pt-2;
+      @apply text-xs;
+      @apply inline-block rounded font-medium uppercase leading-normal;
+      @apply transition duration-150 ease-in-out;
+      @apply focus:outline-none focus:ring-0;
+
+      @apply text-gray-900 bg-white;
+      @apply hover:bg-gray-100;
+      @apply dark:bg-gray-800 dark:text-gray-400;
+      @apply dark:hover:text-white dark:hover:bg-gray-700;
+    }
+
+    .btn-xs {
+      @apply pb-[5px] pt-[6px];
+      @apply text-xs;
+
+    }
+
+    .btn-sm {
+      @apply px-7 pb-2.5 pt-3;
+      @apply text-sm;
+    }
+
+    .btn-lg {
+      @apply px-4 pb-2 pt-2.5;
+      @apply text-xl;
+    }
+
+  }
+
+  @if $variant == 'secondary' {
+    .btn-secondary {
+      @apply bg-primary-100 text-primary-700;
+      @apply hover:bg-primary-accent-100 focus:bg-primary-accent-100;
+      @apply active:bg-primary-accent-200;
+    }
+
+    .btn-outline-secondary {
+      @apply border-2 border-primary-100 text-primary-700;
+      @apply hover:border-primary-accent-100 hover:bg-neutral-500 hover:bg-opacity-10;
+      @apply focus:border-primary-accent-100 focus:outline-none focus:ring-0 active:border-primary-accent-200;
+      @apply dark:text-primary-100 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10;
+    }
+  } @else {
+
+    @each $variant-name, $shadow, $shadow-rgb in $colors {
+
+      @if $variant-name == $variant {
+        .btn-#{$variant-name} {
+          @apply bg-#{$variant-name} text-white;
+          @apply shadow-[0_4px_9px_-4px_#{$shadow}];
+          @apply hover:bg-#{$variant-name}-600 hover:shadow-[0_8px_9px_-4px_rgba(#{$shadow-rgb},0.3),0_4px_18px_0_rgba(#{$shadow-rgb},0.2)];
+          @apply focus:bg-#{$variant-name}-600 focus:shadow-[0_8px_9px_-4px_rgba(#{$shadow-rgb},0.3),0_4px_18px_0_rgba(#{$shadow-rgb},0.2)];
+          @apply active:bg-#{$variant-name}-700 active:shadow-[0_8px_9px_-4px_rgba(#{$shadow-rgb},0.3),0_4px_18px_0_rgba(#{$shadow-rgb},0.2)];
+          @apply dark:shadow-[0_4px_9px_-4px_rgba(#{$shadow-rgb},0.5)];
+          @apply dark:hover:shadow-[0_8px_9px_-4px_rgba(#{$shadow-rgb},0.2),0_4px_18px_0_rgba(#{$shadow-rgb},0.1)];
+          @apply dark:focus:shadow-[0_8px_9px_-4px_rgba(#{$shadow-rgb},0.2),0_4px_18px_0_rgba(#{$shadow-rgb},0.1)];
+          @apply dark:active:shadow-[0_8px_9px_-4px_rgba(#{$shadow-rgb},0.2),0_4px_18px_0_rgba(#{$shadow-rgb},0.1)];
+        }
+        .btn-outline-#{$variant-name} {
+          @apply border-2 border-#{$variant-name} text-#{$variant-name};
+          @apply hover:border-#{$variant-name}-600 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-#{$variant-name}-600;
+          @apply focus:border-#{$variant-name}-600 focus:text-#{$variant-name}-600;
+          @apply active:border-#{$variant-name}-700 active:text-#{$variant-name}-700;
+          @apply dark:hover:bg-neutral-100 dark:hover:bg-opacity-10;
+
+        }
+      }
+
+    }
+  }
+
+}

@@ -1,15 +1,15 @@
 /**
- * Fonts
- * imports material icons + Poppins fonts
- */
-import '@/fonts';
-/**
  * Uses tailwind display: {.class}; to detect
  */
 if (document.querySelector('.flex, .flex-inline, .block, .inline, .inline-block')) {
     import ('@/tailwind');
 }
 
+/**
+ * Fonts Tailwind uses Roboto, sans-serif
+ * imports material icons + Poppins fonts
+ */
+import '@/fonts';
 
 /**
  * Load App

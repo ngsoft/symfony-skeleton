@@ -1,0 +1,69 @@
+<script type="text/javascript">
+    /**
+     * @link https://tailwindcss.com/docs/dark-mode
+     */
+    (function (global) {
+        let theme;
+        const
+            EASYADMIN_KEY = 'ea/colorScheme',
+            mediaDarkMode = matchMedia('(prefers-color-scheme: dark)'),
+            setDarkMode = enabled => {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.removeAttribute('data-mode');
+                document.documentElement.removeAttribute('data-bs-theme');
+                if (enabled) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.setAttribute('data-mode', 'dark');
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                }
+            },
+            isAuto = () => [null, 'auto'].includes(localStorage.getItem(EASYADMIN_KEY)),
+            detectDarkMode = () => {
+                theme = localStorage.getItem(EASYADMIN_KEY);
+                setDarkMode(
+                    theme === 'dark' || (isAuto() && mediaDarkMode.matches)
+                );
+            };
+
+        /**
+         * detects os changes
+         */
+        mediaDarkMode.addEventListener('change', e => {
+            if (isAuto()) {
+                setDarkMode(e.matches);
+            }
+        });
+
+        /**
+         * Detects change from other tabs
+         */
+        addEventListener('storage', () => {
+            if (theme !== localStorage.getItem(EASYADMIN_KEY)) {
+                detectDarkMode();
+            }
+        });
+
+
+        /**
+         * Global Set dark mode
+         * @param {Boolean|null} value if null os settings, else enable/disable
+         */
+        global.enableDarkMode = function enableDarkMode(value) {
+            if (null === value) {
+                localStorage.setItem(EASYADMIN_KEY, 'auto');
+            } else if (value) {
+                localStorage.setItem(EASYADMIN_KEY, 'dark');
+            } else {
+                localStorage.setItem(EASYADMIN_KEY, 'light');
+            }
+
+            // update current page
+            detectDarkMode();
+        }
+
+
+        // finally detect
+        detectDarkMode();
+
+    })(window);
+</script>

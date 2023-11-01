@@ -1,0 +1,16 @@
+@mixin link($variant, $done: false) {
+
+  .link-#{$variant} {
+    @apply text-#{$variant};
+    @apply transition duration-150 ease-in-out;
+    @apply hover:text-#{$variant}-600;
+    @apply focus:text-#{$variant}-600;
+    @apply active:text-#{$variant}-700;
+    @apply dark:text-#{$variant}-400;
+    @apply dark:hover:text-#{$variant}-500;
+    @apply dark:focus:text-#{$variant}-500;
+    @apply dark:active:text-#{$variant}-600;
+  }
+
+
+}
