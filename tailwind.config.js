@@ -15,5 +15,6 @@ export default {
     plugins: [
         elements
     ],
-    darkMode: "class",
+    // added compatibility with other frameworks
+    darkMode: ['class', '[data-mode="dark"]', '[data-bs-theme="dark"]'],
 }
