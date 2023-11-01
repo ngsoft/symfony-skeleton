@@ -1,3 +1,4 @@
+import {fileURLToPath, URL} from 'node:url';
 import {defineConfig} from "vite";
 import symfonyPlugin from "vite-plugin-symfony";
 import {svelte} from '@sveltejs/vite-plugin-svelte';
@@ -36,12 +37,19 @@ export default defineConfig({
 
         }),
     ],
+    resolve: {
+        alias: {
+            '@': fileURLToPath(new URL('./assets', import.meta.url))
+        }
+    },
     build: {
         target: "esnext",
+        chunkSizeWarningLimit: 1024,
         rollupOptions: {
             input: {
                 app: "./assets/app.js"
             },
+
         }
     },
 });

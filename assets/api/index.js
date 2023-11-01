@@ -1,7 +1,11 @@
-import {isEmpty, isJSON, isPlainObject} from "../modules/utils/index.js";
+import {isEmpty, isJSON, isPlainObject, isString} from "../modules/utils/index.js";
 
 let token, tokenExpires = 0, basepath;
 
+
+export const API_ENDPOINTS = {
+    user: '/api/user',
+};
 
 function getBasePath() {
     return basepath ?? '';
@@ -16,7 +20,7 @@ async function getToken() {
 
     if (now() >= tokenExpires) {
         const data = await fetch(
-            getBasePath() + '/user/token'
+            getBasePath() + '/profile/user-token'
         ).then(
             resp => {
                 if (resp.status === 200) {
@@ -34,12 +38,15 @@ async function getToken() {
     return token;
 }
 
-
+/**
+ * Check if token is valid
+ * @param token
+ * @return {Promise<boolean>}
+ */
 export async function checkToken(token) {
 
-    const endpoint = '/api/user';
     return await fetch(
-        getBasePath() + endpoint, {
+        getBasePath() + API_ENDPOINTS.user, {
             headers: {Authorization: `Bearer ${token}`}
         }
     ).then(resp => resp.status === 200)
@@ -48,7 +55,13 @@ export async function checkToken(token) {
 
 }
 
-
+/**
+ * Makes an Api Call
+ * @param {String} endpoint
+ * @param {Object|String} params
+ * @param {String} method
+ * @return {Promise<Object|null>}
+ */
 export async function apiCall(endpoint, params = {}, method = 'GET') {
 
     if (isEmpty(endpoint)) {
@@ -80,6 +93,8 @@ export async function apiCall(endpoint, params = {}, method = 'GET') {
                     url.searchParams.set(prop, params[prop]);
                 }
             }
+        } else if (isString(params)) {
+            url.search = params;
         }
 
     } else if (isPlainObject(params)) {
@@ -89,6 +104,9 @@ export async function apiCall(endpoint, params = {}, method = 'GET') {
 
     } else if (isJSON(params)) {
         headers['Content-Type'] = 'application/json';
+        body = params;
+    } else if (isString(params)) {
+        headers['Content-Type'] = 'application/x-www-form-urlencoded';
         body = params;
     }
 

@@ -26,6 +26,7 @@ class RegistrationFormType extends AbstractType
             ->add('username')
             ->add('email', HiddenType::class)
             ->add('agreeTerms', CheckboxType::class, [
+                'label_attr'  => ['class' => 'cursor-pointer'],
                 'mapped'      => false,
                 'constraints' => [
                     new IsTrue([

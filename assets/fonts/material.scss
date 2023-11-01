@@ -12,7 +12,8 @@ $icons: (
     font-family: $font-name;
     font-weight: normal;
     font-style: normal;
-    font-size: 24px; /* Preferred icon size */
+    font-size: var(--micon-font-size);
+    vertical-align: middle;
     display: inline-block;
     line-height: 1;
     text-transform: none;
@@ -30,15 +31,10 @@ $icons: (
   }
 }
 
-@each $className, $font in $icons {
-  @include material($className, $font, true);
-}
-
 :root {
   --micon-font-size: 24px;
 }
 
-.m-icon {
-  font-size: var(--micon-font-size);
-  vertical-align: middle;
+@each $className, $font in $icons {
+  @include material($className, $font, true);
 }

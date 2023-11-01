@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale ?: app.request.defaultLocale }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <link rel="icon"
+          href="{{ asset('assets/pictures/svelte.svg', 'vite') }}">
+    {% block stylesheets %}
+        <link rel="preload"
+              href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"
+              as="script"
+              crossorigin="anonymous"
+              referrerpolicy="no-referrer">
+        <link
+                rel="preload"
+                href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css"
+                as="style"
+                referrerpolicy="no-referrer">
+
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css"
+              crossorigin="anonymous" referrerpolicy="no-referrer">
+        {{ vite_entry_link_tags('app') }}
+    {% endblock %}
+
+</head>
+<body>
+{% block body %}{% endblock %}
+{% block javascripts %}
+    <script
+            src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    {{ vite_entry_script_tags('app') }}
+{% endblock %}
+</body>
+</html>

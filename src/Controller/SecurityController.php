@@ -49,6 +49,7 @@ class SecurityController extends AbstractController
         $error        = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
         return $this->render('security/login.html.twig', [
+            'can_register'  => $this->canRegister($repository),
             'last_username' => $lastUsername,
             'error'         => $error,
         ]);
@@ -66,17 +67,9 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_welcome');
         }
 
-        if (false === $this->getOptionManager()->getItem('user.can_register'))
+        if ( ! $this->canRegister($repository))
         {
             return $this->redirectToRoute('app_login');
-        }
-
-        if (($maxUsers = $this->getOptionManager()->getItem('user.max_register')) > 0)
-        {
-            if ($repository->countUsers() >= $maxUsers)
-            {
-                return $this->redirectToRoute('app_login');
-            }
         }
 
         $user = new User();
@@ -118,7 +111,7 @@ class SecurityController extends AbstractController
     /**
      * Svelte / js api access using cookie => Authorization: Bearer <token.token>.
      */
-    #[Route('/user/token', 'app_user_token')]
+    #[Route('/profile/user-token', 'app_user_token')]
     public function token(UserRepository $repository): JsonResponse
     {
         $user = $this->getUser();
@@ -157,5 +150,20 @@ class SecurityController extends AbstractController
         return $this->json([
             'result' => null !== $this->getUser(),
         ]);
+    }
+
+    protected function canRegister(UserRepository $repository): bool
+    {
+        if ( ! $this->getOptionManager()->getItem('user.can_register'))
+        {
+            return false;
+        }
+
+        if (0 < ($maxUsers = $this->getOptionManager()->getItem('user.max_register')))
+        {
+            return $repository->countUsers() < $maxUsers;
+        }
+
+        return true;
     }
 }

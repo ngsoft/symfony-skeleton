@@ -1,5 +1,5 @@
 {% if name is not empty %}
-    <span{{ attributes.defaults({class: 'm-icon ' ~ variant}) }} style="--micon-font-size: {{ size }}px">
+    <span{{ attributes.defaults({class: variant}) }} style="--micon-font-size: {{ size }}px">
     {{ name }}
 </span>
 {% endif %}

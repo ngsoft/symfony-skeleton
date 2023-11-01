@@ -3,25 +3,28 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    <div class="container mx-auto min-vh-100 d-flex flex-column justify-content-center">
-        <h1>Register</h1>
-        {{ form_errors(registrationForm) }}
+    <div class="min-h-screen flex flex-col justify-center items-center w-screen">
 
-        {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.username) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+        <div class="container mx-auto sm:px-4 flex flex-col justify-center md:w-[50vw]">
+            <h3 class="text-center mb-5">Register</h3>
+            {{ form_errors(registrationForm) }}
 
-        <div class="d-flex align-items-center">
-            <div class="me-auto">
-                <a href="{{ path('app_login') }}">Login</a>
+            {{ form_start(registrationForm) }}
+            {{ form_row(registrationForm.username) }}
+            {{ form_row(registrationForm.plainPassword, {
+                label: 'Password'
+            }) }}
+            {{ form_row(registrationForm.agreeTerms) }}
+
+            <div class="flex items-center">
+                <div class="me-auto">
+                    <a href="{{ path('app_login') }}" class="link-primary hover-underline">Login</a>
+                </div>
+
+                {{ form_row(registrationForm.register) }}
             </div>
 
-            {{ form_row(registrationForm.register) }}
+            {{ form_end(registrationForm) }}
         </div>
-
-        {{ form_end(registrationForm) }}
     </div>
 {% endblock %}

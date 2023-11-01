@@ -1,0 +1,130 @@
+@tailwind base;
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    @apply text-black;
+  }
+
+  html.dark {
+    @apply text-neutral-50;
+    @apply bg-neutral-800;
+  }
+}
+
+@tailwind components;
+@tailwind utilities;
+
+
+$variants: (
+        'primary',
+        'secondary',
+        'success',
+        'danger',
+        'warning',
+        'info'
+);
+
+
+@layer utilities {
+  h1 {
+    @apply text-5xl font-extrabold dark:text-white mb-4;
+  }
+
+  h2 {
+    @apply text-4xl font-bold dark:text-white mb-4;
+  }
+
+  h3 {
+    @apply text-3xl font-bold dark:text-white mb-4;
+  }
+
+  h4 {
+    @apply text-2xl font-bold dark:text-white mb-4;
+  }
+
+  h5 {
+    @apply text-xl font-bold dark:text-white mb-4;
+  }
+
+  h6 {
+    @apply text-lg font-bold dark:text-white mb-4;
+  }
+
+
+}
+
+@mixin link($variant) {
+
+  .link-#{$variant} {
+    @apply text-#{$variant};
+    @apply transition duration-150 ease-in-out;
+    @apply hover:text-#{$variant}-600;
+    @apply focus:text-#{$variant}-600;
+    @apply active:text-#{$variant}-700;
+    @apply dark:text-#{$variant}-400;
+    @apply dark:hover:text-#{$variant}-500;
+    @apply dark:focus:text-#{$variant}-500;
+    @apply dark:active:text-#{$variant}-600;
+  }
+
+
+}
+
+@mixin alert($variant) {
+
+  .alert-#{$variant} {
+
+    @apply bg-#{$variant}-100 dark:bg-#{$variant}-900;
+    @apply text-#{$variant}-700 dark:text-#{$variant}-400;
+    @apply border-#{$variant}-300 dark:border-#{$variant}-500;
+
+
+    .alert-link {
+      @apply underline;
+      @apply font-bold;
+      @apply text-#{$variant}-900;
+      @apply dark:text-#{$variant}-400
+    }
+  }
+
+}
+
+
+@each $variant in $variants {
+  @include link($variant);
+  @include alert($variant);
+}
+
+
+.alert {
+  @apply mb-3 rounded-lg px-6 py-5;
+  @apply inline-flex w-full items-center select-none text-base;
+  @apply border-[1px] border-solid
+}
+
+
+.hover-underline {
+  @apply underline decoration-transparent transition duration-300 ease-in-out hover:decoration-inherit;
+}
+
+::-webkit-scrollbar {
+  height: 2px;
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(219, 219, 219, 0.5);
+  border-radius: 20px;
+}

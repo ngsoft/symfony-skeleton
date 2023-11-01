@@ -4,23 +4,27 @@ declare(strict_types=1);
 
 namespace App\Twig\Components;
 
+use App\Traits\HasAliases;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
 
 #[AsTwigComponent()]
 final class Micon
 {
+    use HasAliases;
+
     public const FILLED    = 'material-icons';
     public const ROUND     = 'material-icons-round';
     public const OUTLINED  = 'material-icons-outlined';
     public const SHARP     = 'material-icons-sharp';
     public const TWO_TONES = 'material-icons-two-tone';
+    public const DEFAULT   = self::FILLED;
     public const VARIANTS  = [
-        'filled'   => self::FILLED,
-        'round'    => self::ROUND,
-        'outlined' => self::OUTLINED,
-        'sharp'    => self::SHARP,
-        'two'      => self::TWO_TONES,
+        self::FILLED,
+        self::ROUND,
+        self::OUTLINED,
+        self::SHARP,
+        self::TWO_TONES,
     ];
 
     #[ExposeInTemplate]
@@ -47,9 +51,9 @@ final class Micon
         return $this->size;
     }
 
-    public function mount(string $name, string $variant = self::FILLED, int $size = 24): self
+    public function mount(string $name, string $variant = self::DEFAULT, int $size = 24): self
     {
-        $variant       = self::VARIANTS[$variant] ?? $variant;
+        $variant       = $this->getAlias($variant);
 
         if ( ! in_array($variant, self::VARIANTS))
         {
@@ -61,5 +65,20 @@ final class Micon
         $this->size    = $size;
 
         return $this;
+    }
+
+    protected function aliasSetup(): array
+    {
+        return self::VARIANTS + [
+            'default'  => self::DEFAULT,
+            'filled'   => self::FILLED,
+            'round'    => self::ROUND,
+            'rounded'  => self::ROUND,
+            'outlined' => self::OUTLINED,
+            'outline'  => self::OUTLINED,
+            'sharp'    => self::SHARP,
+            'two'      => self::TWO_TONES,
+            'dual'     => self::TWO_TONES,
+        ];
     }
 }
