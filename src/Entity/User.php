@@ -14,6 +14,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 use function NGSOFT\Tools\iterable_to_array;
+use function NGSOFT\Tools\some;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username/email')]
@@ -114,6 +115,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
+    }
+
+    public function isAdmin(): bool
+    {
+        return some(
+            fn ($role) => in_array($role, [self::ROLE_ADMIN, self::ROLE_SUPER_ADMIN]),
+            $this->getRoles()
+        );
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->getRoles());
     }
 
     public function addRole(string $role): static

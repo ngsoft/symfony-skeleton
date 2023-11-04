@@ -9,7 +9,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 trait CanTranslate
 {
-    private TranslatorInterface $translator;
+    protected TranslatorInterface $translator;
 
     public function getTranslator(): TranslatorInterface
     {

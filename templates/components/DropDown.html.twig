@@ -1,0 +1,86 @@
+{% if not item.hasChildren %}
+    <twig:MenuLink :item="item"/>
+{% else %}
+    <div
+            id="{{ item.identifier }}"
+            {{ attributes.defaults({class: 'dropdown'}) }}
+            data-te-dropdown-ref>
+        <button
+                type="button"
+                {% if not item.labelDisplayed %}
+                    data-te-toggle="tooltip"
+                    data-te-placement="{{ item.tooltipPlacement }}"
+                    title="{{ item.label|trans }}"
+                {% endif %}
+                class="{{ item.isActive ? 'dropdown-toggle active' : 'dropdown-toggle' }}"
+                data-te-dropdown-toggle-ref
+                aria-expanded="{{ item.isExpanded }}"
+                data-te-ripple-init
+                data-te-ripple-color="light">
+            {% if item.chevronDisplayed and not item.chevronEnd %}
+                <twig:Micon name="expand_more" variant="outlined" size="16"/>
+            {% endif %}
+            {% if item.icon and item.iconStart %}
+                <twig:Micon class="text-[16px] md:text-[20px]" name="{{ item.icon }}"
+                            variant="{{ item.iconVariant }}"/>
+            {% endif %}
+            <span class="link-label mx-0.5 md:mx-1{{ item.labelDisplayed ? '' : ' md:hidden' }}">
+                {{ item.label|trans }}
+            </span>
+            {% if item.icon and not item.iconStart %}
+                <twig:Micon class="text-[16px] md:text-[20px]" name="{{ item.icon }}"
+                            variant="{{ item.iconVariant }}"/>
+            {% endif %}
+            {% if item.chevronDisplayed and item.chevronEnd %}
+                <twig:Micon name="expand_more" variant="outlined" size="16"/>
+            {% endif %}
+        </button>
+        <ul
+                class="dropdown-menu"
+                aria-labelledby="{{ item.identifier }}"
+                data-te-dropdown-menu-ref>
+            {% for link in item %}
+                <li>
+                    {% if link.hasChildren %}
+                        <twig:DropDown :item="link"/>
+                    {% else %}
+                        <a
+                                class="dropdown-item{{ link.isActive ? ' active' : '' }}"
+                                id="{{ link.identifier }}"
+                                data-te-nav-link-ref
+                                data-te-ripple-init
+                                data-te-ripple-color="light"
+                                {% if link.route is not empty %}
+                                    href="{{ path(link.route, link.routeArgs) }}"
+                                {% else %}
+                                    href="#!"
+                                {% endif %}
+                                {% if not link.labelDisplayed %}
+                            data-te-toggle="tooltip"
+                            data-te-placement="{{ link.tooltipPlacement }}"
+                            title="{{ link.label|trans }}"
+                                {% endif %}>
+                            {% if link.icon and link.iconStart %}
+                                <twig:Micon
+                                        name="{{ link.icon }}"
+                                        variant="{{ link.iconVariant }}"
+                                        class="text-[16px] md:text-[20px]"/>
+                            {% endif %}
+                            <span class="link-label mx-0.5 md:mx-1{{ link.labelDisplayed ? '' : ' md:hidden' }}">
+                                {{ link.label|trans }}
+                            </span>
+
+                            {% if link.icon and not link.iconStart %}
+                                <twig:Micon
+                                        name="{{ link.icon }}"
+                                        variant="{{ link.iconVariant }}"
+                                        class="text-[16px] md:text-[20px]"/>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+{% endif %}

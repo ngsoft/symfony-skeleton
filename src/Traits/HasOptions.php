@@ -18,7 +18,7 @@ trait HasOptions
     }
 
     #[Required]
-    public function setOptionManager(OptionManager $optionManager):void
+    public function setOptionManager(OptionManager $optionManager): void
     {
         $this->optionManager = $optionManager;
 
@@ -43,4 +43,14 @@ trait HasOptions
     }
 
     abstract public static function optionSetup(): array;
+
+    protected function getOption(string $name): mixed
+    {
+        return $this->getOptionManager()->getItem($name);
+    }
+
+    protected function setOption(string $name, mixed $value): void
+    {
+        $this->getOptionManager()->setItem($name, $value);
+    }
 }

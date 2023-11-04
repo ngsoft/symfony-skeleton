@@ -87,6 +87,7 @@ return [
         'PhanTypeMismatchDimAssignment',
         'PhanTypeMismatchArgumentNullable',
         'PhanParamTooFewUnpack',
+        'PhanUnusedPublicNoOverrideMethodParameter',
     ],
     // If true, seemingly undeclared variables in the global
     // scope will be ignored.

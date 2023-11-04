@@ -8,14 +8,14 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 trait HasAliases
 {
-    private array $aliases = [];
+    protected array $aliases = [];
 
     public function getAlias(string $alias): string
     {
         return isset($this->aliases[$alias]) ? $this->getAlias($this->aliases[$alias]) : $alias;
     }
 
-    public function addAlias(array|string $alias, string $name): static
+    public function addAlias(array|string $alias, string $name): void
     {
         $alias = array_unique((array) $alias);
 
@@ -27,7 +27,6 @@ trait HasAliases
             ));
         }
         $this->aliases += array_fill_keys($alias, $name);
-        return $this;
     }
 
     #[Required]

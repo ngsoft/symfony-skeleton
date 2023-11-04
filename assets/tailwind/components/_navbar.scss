@@ -1,0 +1,38 @@
+@mixin navbar {
+
+  .navbar {
+    @apply flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] py-2 text-neutral-500 shadow-lg;
+    @apply hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600 md:py-4 select-none;
+    &-inner {
+      @apply flex w-full flex-wrap items-center px-3 justify-between;
+    }
+
+    &-brand {
+      @apply mb-4 ml-2 mr-5 mt-3 text-lg md:text-xl;
+      @apply flex items-center text-neutral-900;
+      @apply hover:text-neutral-900 focus:text-neutral-900;
+      @apply dark:text-neutral-200 dark:hover:text-neutral-100 dark:focus:text-neutral-100;
+      @apply md:mb-0 md:mt-0;
+      img {
+        @apply w-5 h-5 me-1.5 md:w-6 md:h-6 md:me-2;
+      }
+    }
+
+    &-toggler {
+      @apply block border-0 bg-transparent px-2 text-neutral-500;
+      @apply hover:no-underline hover:shadow-none;
+      @apply focus:no-underline focus:shadow-none focus:outline-none focus:ring-0;
+      @apply dark:text-neutral-200 md:hidden;
+    }
+
+    & .nav-link, & .dropdown-toggle:not(.btn) {
+      @apply block transition duration-150 ease-in-out;
+      @apply hover:text-neutral-700 focus:text-neutral-700 disabled:text-black/30;
+      @apply dark:text-neutral-300 dark:hover:text-white dark:focus:text-white lg:p-2;
+      @apply [&.active]:text-black/90 dark:[&.active]:text-white/90;
+    }
+
+  }
+
+
+}

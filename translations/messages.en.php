@@ -17,5 +17,7 @@ return [
     'Register'          => 'Sign Up',
     'Agree terms'       => 'Agree terms',
     'Remember me'       => 'Keep me logged in',
+    'Logout'            => 'Sign Out',
+    'logout'            => 'sign out',
 
 ];

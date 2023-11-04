@@ -1,0 +1,35 @@
+@mixin dropdown {
+
+  .dropdown {
+    @apply relative;
+  }
+
+  .dropdown-toggle {
+    @apply whitespace-nowrap motion-reduce:transition-none;
+
+  }
+
+  .dropdown-menu {
+    @apply absolute z-[1000] float-left m-0 p-1 hidden min-w-max list-none overflow-hidden;
+    @apply rounded-lg border-none bg-white bg-clip-padding text-left text-base shadow-lg;
+    @apply dark:bg-neutral-700 [&[data-te-dropdown-show]]:block;
+    li + li {
+      @apply mt-0.5;
+    }
+  }
+
+  .dropdown-item {
+    @apply block whitespace-nowrap bg-transparent w-full;
+    @apply px-4 py-2 text-sm font-normal text-neutral-700;
+    @apply hover:bg-neutral-100;
+    @apply active:text-neutral-800 active:no-underline;
+    @apply disabled:pointer-events-none disabled:bg-transparent disabled:text-neutral-400;
+    @apply dark:text-neutral-200 dark:hover:bg-neutral-600;
+    &.active {
+      box-shadow: inset 0 0 0 1px #5368d580;
+      @apply bg-slate-100 text-indigo-500 border-solid border-indigo-500 rounded;
+    }
+  }
+
+
+}

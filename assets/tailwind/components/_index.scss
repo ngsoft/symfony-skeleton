@@ -1,6 +1,8 @@
 @use "alert";
 @use "link";
 @use "btn";
+@use "navbar";
+@use "dropdown";
 
 $variants: (
         'primary',
@@ -57,9 +59,11 @@ $variants: (
     border-radius: 20px;
   }
 
+  @include navbar.navbar;
+  @include dropdown.dropdown;
+
+
   $done: false;
-
-
   @each $variant in $variants {
     @include link.link($variant, $done);
     @include alert.alert($variant, $done);

@@ -30,6 +30,7 @@ class SecurityController extends AbstractController
         return [
             ['user.can_register', true, 'Registration is enabled'],
             ['user.max_register', 0, 'User Registration Limit (0 is unlimited)'],
+            ['user.create_api_key', false, 'Users can create Api keys'],
         ];
     }
 
@@ -106,6 +107,12 @@ class SecurityController extends AbstractController
         return $this->render('security/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
+    }
+
+    #[Route('/profile', 'app_profile')]
+    public function profile(): Response
+    {
+        return $this->render('security/profile.html.twig');
     }
 
     /**

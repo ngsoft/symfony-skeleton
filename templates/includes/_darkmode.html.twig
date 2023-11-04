@@ -3,10 +3,18 @@
      * @link https://tailwindcss.com/docs/dark-mode
      */
     (function (global) {
-        let theme;
+        let theme, darkModeWidget;
         const
             EASYADMIN_KEY = 'ea/colorScheme',
             mediaDarkMode = matchMedia('(prefers-color-scheme: dark)'),
+            darkModeWidgetModes = {
+                'auto-mode': null,
+                'dark-mode': true,
+                'light-mode': false,
+                'auto': 'auto-mode',
+                'dark': 'dark-mode',
+                'light': 'light-mode',
+            },
             setDarkMode = enabled => {
                 document.documentElement.classList.remove('dark');
                 document.documentElement.removeAttribute('data-mode');
@@ -23,6 +31,13 @@
                 setDarkMode(
                     theme === 'dark' || (isAuto() && mediaDarkMode.matches)
                 );
+                if (darkModeWidget) {
+                    darkModeWidget.querySelectorAll('.dropdown-item').forEach(x => x.classList.remove('active'));
+                    document.getElementById(
+                        darkModeWidgetModes[theme ?? 'auto']
+                    ).classList.add('active');
+                }
+
             };
 
         /**
@@ -43,12 +58,28 @@
             }
         });
 
+        addEventListener('DOMContentLoaded', () => {
+            if ((darkModeWidget = document.getElementById('dark-mode-widget'))) {
+                document.getElementById(
+                    darkModeWidgetModes[theme ?? 'auto']
+                ).classList.add('active');
+                darkModeWidget.addEventListener('click', e => {
+                    e.preventDefault();
+                    const btn = e.target.closest('.dropdown-item');
+                    if (btn && !btn.classList.contains('active')) {
+                        enableDarkMode(darkModeWidgetModes[btn.id]);
+                    }
+                });
+            }
+        });
+
 
         /**
          * Global Set dark mode
          * @param {Boolean|null} value if null os settings, else enable/disable
          */
         global.enableDarkMode = function enableDarkMode(value) {
+
             if (null === value) {
                 localStorage.setItem(EASYADMIN_KEY, 'auto');
             } else if (value) {
