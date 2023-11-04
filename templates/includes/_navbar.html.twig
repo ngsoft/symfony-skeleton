@@ -3,12 +3,12 @@
 
         <a class="navbar-brand" href="{{ path('app_welcome') }}">
             <img
-                    src="{{ asset(site.icon) }}"
+                    src="{{ asset(option_get('site.icon')) }}"
                     width="24"
                     height="24"
-                    alt="{{ site.name }}"
+                    alt="{{ option_get('site.name') }}"
                     loading="lazy">
-            {{ site.name }}
+            {{ option_get('site.name') }}
         </a>
 
         <button

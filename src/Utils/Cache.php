@@ -4,12 +4,21 @@ declare(strict_types=1);
 
 namespace App\Utils;
 
+use App\Utils\Facade\InnerFacade;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\ChainAdapter;
+use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
 
-final class Cache
+/**
+ * Caches Models Metadata and some datas.
+ * Requires a PSR-6 cache to work.
+ */
+final class Cache extends Facade
 {
-    public function __construct(private readonly CacheItemPoolInterface $cache) {}
+    protected static ?string $accessor = CacheItemPoolInterface::class;
 
     /**
      * Gets an entry from the cache.
@@ -18,11 +27,11 @@ final class Cache
      * @param null|\Closure|mixed $defaultValue if a closure is provided it will be called and the return value will be used
      * @param int                 $seconds      if a default value is provided it will be cached, that parameter set the number of seconds until the item expires, 0 never expires
      */
-    public function get(string $key, mixed $defaultValue = null, int $seconds = 0): mixed
+    public static function get(string $key, mixed $defaultValue = null, int $seconds = 0): mixed
     {
         try
         {
-            $item = $this->cache->getItem($key);
+            $item = self::getRoot()->getItem($key);
 
             if ( ! $item->isHit())
             {
@@ -30,7 +39,7 @@ final class Cache
 
                 if (isset($value))
                 {
-                    $this->set($key, $value, $seconds);
+                    self::set($key, $value, $seconds);
                 }
             } else
             {
@@ -52,13 +61,13 @@ final class Cache
      * @param mixed  $value   the value to store, null will delete the cached item
      * @param int    $seconds that parameters give the number of seconds until the item expires, 0 never expires
      */
-    public function set(string $key, mixed $value, int $seconds = 0): void
+    public static function set(string $key, mixed $value, int $seconds = 0): void
     {
         if (null === $value = value($value))
         {
             try
             {
-                $this->cache->deleteItem($key);
+                self::getRoot()->deleteItem($key);
             } catch (InvalidArgumentException)
             {
             }
@@ -66,7 +75,7 @@ final class Cache
         {
             try
             {
-                $item = $this->cache
+                $item = self::getCachePool()
                     ->getItem($key)
                     ->set($value)
                 ;
@@ -76,7 +85,7 @@ final class Cache
                     $item->expiresAfter($seconds);
                 }
 
-                $this->cache->save(
+                self::getCachePool()->save(
                     $item
                 );
             } catch (InvalidArgumentException)
@@ -88,11 +97,11 @@ final class Cache
     /**
      * Removes a value from the cache.
      */
-    public function delete(string $key): void
+    public static function delete(string $key): void
     {
         try
         {
-            $this->cache->deleteItem($key);
+            self::getRoot()->deleteItem($key);
         } catch (InvalidArgumentException)
         {
         }
@@ -101,50 +110,23 @@ final class Cache
     /**
      * Clears the cache.
      */
-    public function clear(): void
+    public static function clear(): void
     {
-        $this->cache->clear();
+        self::getRoot()->clear();
     }
 
-    /**
-     * Generates a cache key from concatenated values.
-     */
-    public function makeCacheKey(mixed $value, mixed ...$values): string
+    protected static function getDefinitions(InnerFacade $services): array
     {
-        array_unshift($values, $value);
-        $result = [];
+        // only called if symfony does not have a cache pool
+        $adapters   = [new ArrayAdapter(storeSerialized: false)];
 
-        foreach ($values as $value)
+        if (ApcuAdapter::isSupported() && 'cli' !== php_sapi_name())
         {
-            if (is_object($value))
-            {
-                if ( ! is_stringable($value))
-                {
-                    $value = get_class($value);
-                } else
-                {
-                    $value = str_val($value);
-                }
-            } elseif (is_scalar($value))
-            {
-                $value = str_val($value);
-            }
-
-            if (is_string($value))
-            {
-                $result[] = $value;
-            }
+            $adapters[] = new ApcuAdapter();
         }
 
-        if (empty($result))
-        {
-            throw new \ValueError('Cache key cannot be empty');
-        }
-        return sha1(
-            implode(
-                ':',
-                $result
-            )
-        );
+        $adapters[] = new PhpFilesAdapter();
+
+        return [CacheItemPoolInterface::class => new ChainAdapter($adapters)];
     }
 }

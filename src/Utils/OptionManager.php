@@ -9,31 +9,40 @@ use App\Repository\OptionRepository;
 
 final class OptionManager implements \ArrayAccess
 {
-    private const CACHE_KEY      = '78ce82c7f9711717accdccdad082ccd34d092055';
-    private const CACHE_LIFETIME = 300;
+    /** @var Option[] */
+    private array $defaultValues = [];
+
+    /** @var array<string,true> */
+    private array $registry      = [];
 
     public function __construct(
-        private readonly OptionRepository $optionRepository,
-        private readonly Cache $cache
+        private readonly OptionRepository $optionRepository
     ) {}
 
+    /**
+     * Register a new Option.
+     */
     public function register(string $name, mixed $defaultValue, string $description = '', bool $autoload = true): self
     {
-        $items = $this->cache->get(self::CACHE_KEY) ?? [];
-
-        if (isset($items[$name]))
+        if ( ! isset($this->defaultValues[$name]))
         {
-            return $this;
+            $this->defaultValues[$name] = Option::new($name, $defaultValue, $description)
+                ->setAutoload($autoload)
+            ;
+        }
+
+        if (empty($this->registry))
+        {
+            $this->registry = $this->optionRepository->getLoadedOptions();
         }
 
         if (
-            $this->optionRepository->setUpOption(
-                Option::new($name, $defaultValue, $description)
-                    ->setAutoload($autoload)
+            ! isset($this->registry[$name])
+            && $this->optionRepository->setUpOption(
+                $this->defaultValues[$name]
             )
         ) {
-            $items[$name] = true;
-            $this->cache->set(self::CACHE_KEY, $items, self::CACHE_LIFETIME);
+            $this->registry[$name] = true;
         }
 
         return $this;
@@ -45,8 +54,13 @@ final class OptionManager implements \ArrayAccess
     public function getItem(string $name, mixed $defaultValue = null): mixed
     {
         // not registered
-        if ( ! $this->hasItem($name))
+        if ( ! $this->optionRepository->hasOption($name))
         {
+            if (isset($this->defaultValues[$name]))
+            {
+                return $defaultValue[$name]->getValue();
+            }
+
             return value($defaultValue);
         }
 
@@ -58,7 +72,7 @@ final class OptionManager implements \ArrayAccess
      */
     public function setItem(string $name, mixed $value): self
     {
-        if ($this->hasItem($name))
+        if ($this->optionRepository->hasOption($name))
         {
             $this->optionRepository->setOption($name, $value);
         }
@@ -74,7 +88,6 @@ final class OptionManager implements \ArrayAccess
     public function removeItem(string $name): self
     {
         $this->optionRepository->removeOption($name);
-        $this->cache->delete(self::CACHE_KEY);
 
         return $this;
     }
@@ -84,7 +97,7 @@ final class OptionManager implements \ArrayAccess
      */
     public function hasItem(string $name): bool
     {
-        return $this->optionRepository->hasOption($name);
+        return $this->optionRepository->hasOption($name) || isset($this->defaultValues[$name]);
     }
 
     public function getOptionRepository(): OptionRepository

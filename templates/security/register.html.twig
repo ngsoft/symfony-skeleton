@@ -3,30 +3,53 @@
 {% extends 'layout.html.twig' %}
 
 {% block content %}
-    <div class="min-h-screen flex flex-col justify-center items-center w-screen">
+    <div class="min-h-[calc(100vh-128px)] flex flex-col justify-center items-center w-screen">
 
         <div class="container mx-auto sm:px-4 flex flex-col justify-center md:w-[50vw]">
             <h3 class="text-center mb-5 capitalize">{{ 'Register'|trans }}</h3>
-            {{ form_errors(registrationForm) }}
+            {% if not closed %}
+                {{ form_errors(registrationForm) }}
 
-            {{ form_start(registrationForm) }}
-            {{ form_row(registrationForm.username) }}
-            {{ form_row(registrationForm.plainPassword, {
-                label: 'Password'|trans
-            }) }}
-            {{ form_row(registrationForm.agreeTerms) }}
+                {{ form_start(registrationForm) }}
+                {{ form_row(registrationForm.username) }}
+                {{ form_row(registrationForm.plainPassword, {
+                    label: 'Password'|trans
+                }) }}
+                {{ form_row(registrationForm.agreeTerms) }}
 
-            <div class="flex items-center">
-                <div class="me-auto">
-                    <a href="{{ path('app_login') }}" class="link-primary hover-underline capitalize">
-                        {{ 'login'|trans }}
-                    </a>
+                <div class="flex items-center">
+                    <div class="me-auto">
+                        {% if hasUsers %}
+                            <a href="{{ path('app_login') }}" class="link-primary hover-underline capitalize">
+                                {{ 'login'|trans }}
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    {{ form_row(registrationForm.register) }}
                 </div>
 
-                {{ form_row(registrationForm.register) }}
-            </div>
+                {{ form_end(registrationForm) }}
 
-            {{ form_end(registrationForm) }}
+            {% else %}
+
+                <div class="flex flex-col items-center">
+                    <img
+                            data-te-toggle="tooltip"
+                            title="{{ 'Registration is closed'|trans }}"
+
+                            class="object-cover object-center cursor-pointer"
+                            width="470" height="268"
+                            alt="{{ 'Registration is closed'|trans }}" src="{{ asset('picture/regoff.webp') }}">
+                    <div class="text-center mt-4">
+                        <a href="{{ path('app_welcome') }}" class="btn btn-primary text-center">
+                            <twig:Micon name="arrow_back"/>
+                            {{ 'Go back'|trans }}
+                        </a>
+                    </div>
+
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

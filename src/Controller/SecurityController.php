@@ -8,7 +8,6 @@ use App\Entity\AccessToken;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
-use App\Traits\HasOptions;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,26 +22,19 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    use HasOptions;
-
-    public static function optionSetup(): array
-    {
-        return [
-            ['user.can_register', true, 'Registration is enabled'],
-            ['user.max_register', 0, 'User Registration Limit (0 is unlimited)'],
-            ['user.create_api_key', false, 'Users can create Api keys'],
-        ];
-    }
+    public function __construct(private readonly UserRepository $userRepository) {}
 
     #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils, UserRepository $repository): Response
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if (null !== $this->getUser())
         {
             return $this->redirectToRoute('app_welcome');
         }
 
-        if ( ! $repository->hasUser())
+        $canRegister  = $this->userRepository->canRegister();
+
+        if ( ! $this->userRepository->hasUser())
         {
             return $this->redirectToRoute('app_register');
         }
@@ -50,7 +42,8 @@ class SecurityController extends AbstractController
         $error        = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
         return $this->render('security/login.html.twig', [
-            'can_register'  => $this->canRegister($repository),
+
+            'can_register'  => $canRegister,
             'last_username' => $lastUsername,
             'error'         => $error,
         ]);
@@ -60,21 +53,26 @@ class SecurityController extends AbstractController
     public function register(
         Request $request,
         UserPasswordHasherInterface $userPasswordHasher,
-        EntityManagerInterface $entityManager,
-        UserRepository $repository
+        EntityManagerInterface $entityManager
     ): Response {
         if (null !== $this->getUser())
         {
             return $this->redirectToRoute('app_welcome');
         }
 
-        if ( ! $this->canRegister($repository))
+        $hasUsers = $this->userRepository->hasUser();
+
+        if ( ! $this->userRepository->canRegister())
         {
-            return $this->redirectToRoute('app_login');
+            if ($hasUsers)
+            {
+                return $this->redirectToRoute('app_login');
+            }
+            $closed = true;
         }
 
-        $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $user     = new User();
+        $form     = $this->createForm(RegistrationFormType::class, $user);
 
         $form->handleRequest($request);
 
@@ -88,7 +86,7 @@ class SecurityController extends AbstractController
                 )
             );
 
-            if ( ! $repository->hasUser())
+            if ( ! $hasUsers)
             {
                 $user->setRoles([
                     'ROLE_SUPER_ADMIN',
@@ -106,6 +104,8 @@ class SecurityController extends AbstractController
 
         return $this->render('security/register.html.twig', [
             'registrationForm' => $form->createView(),
+            'hasUsers'         => $hasUsers,
+            'closed'           => isset($closed),
         ]);
     }
 
@@ -119,13 +119,13 @@ class SecurityController extends AbstractController
      * Svelte / js api access using cookie => Authorization: Bearer <token.token>.
      */
     #[Route('/profile/user-token', 'app_user_token')]
-    public function token(UserRepository $repository): JsonResponse
+    public function token(): JsonResponse
     {
         $user = $this->getUser();
 
         if ($user instanceof User)
         {
-            return $this->json($repository->generateOrGetToken($user));
+            return $this->json($this->userRepository->generateOrGetToken($user));
         }
 
         throw new BadCredentialsException();
@@ -157,20 +157,5 @@ class SecurityController extends AbstractController
         return $this->json([
             'result' => null !== $this->getUser(),
         ]);
-    }
-
-    protected function canRegister(UserRepository $repository): bool
-    {
-        if ( ! $this->getOptionManager()->getItem('user.can_register'))
-        {
-            return false;
-        }
-
-        if (0 < ($maxUsers = $this->getOptionManager()->getItem('user.max_register')))
-        {
-            return $repository->countUsers() < $maxUsers;
-        }
-
-        return true;
     }
 }

@@ -1,6 +1,6 @@
 {% if not item.hasChildren %}
     <twig:MenuLink :item="item"/>
-{% else %}
+{% elseif item.visible %}
     <div
             id="{{ item.identifier }}"
             {{ attributes.defaults({class: 'dropdown'}) }}
@@ -43,7 +43,7 @@
                 <li>
                     {% if link.hasChildren %}
                         <twig:DropDown :item="link"/>
-                    {% else %}
+                    {% elseif link.visible %}
                         <a
                                 class="dropdown-item{{ link.isActive ? ' active' : '' }}"
                                 id="{{ link.identifier }}"

@@ -1,34 +1,36 @@
-{% if not item.hasChildren %}
-    <a
-            {{ attributes.defaults({class:  item.isActive ? 'nav-link active' : 'nav-link'}) }}
-            id="{{ item.identifier }}"
-            data-te-nav-link-ref
-            data-te-ripple-init
-            data-te-ripple-color="light"
-            {% if item.route is not empty %}
-                href="{{ path(item.route, item.routeArgs) }}"
-            {% else %}
-                href="#!"
-            {% endif %}
-            {% if not item.labelDisplayed %}
-        data-te-toggle="tooltip"
-        data-te-placement="{{ link.tooltipPlacement }}"
-        title="{{ item.label }}"
-            {% endif %}>
+{% if item.visible %}
+    {% if not item.hasChildren %}
+        <a
+                {{ attributes.defaults({class:  item.isActive ? 'nav-link active' : 'nav-link'}) }}
+                id="{{ item.identifier }}"
+                data-te-nav-link-ref
+                data-te-ripple-init
+                data-te-ripple-color="light"
+                {% if item.route is not empty %}
+                    href="{{ path(item.route, item.routeArgs) }}"
+                {% else %}
+                    href="#!"
+                {% endif %}
+                {% if not item.labelDisplayed %}
+            data-te-toggle="tooltip"
+            data-te-placement="{{ link.tooltipPlacement }}"
+            title="{{ item.label }}"
+                {% endif %}>
 
-        {% if item.icon and item.iconStart %}
-            <twig:Micon class="text-[16px] md:text-[20px]" name="{{ item.icon }}"
-                        variant="{{ item.iconVariant }}"/>
-        {% endif %}
-        <span class="link-label mx-0.5 md:mx-1{{ item.labelDisplayed ? '' : ' md:hidden' }}">
+            {% if item.icon and item.iconStart %}
+                <twig:Micon class="text-[16px] md:text-[20px]" name="{{ item.icon }}"
+                            variant="{{ item.iconVariant }}"/>
+            {% endif %}
+            <span class="link-label mx-0.5 md:mx-1{{ item.labelDisplayed ? '' : ' md:hidden' }}">
                 {{ item.label|trans }}
             </span>
-        {% if item.icon and not item.iconStart %}
-            <twig:Micon class="text-[16px] md:text-[20px]" name="{{ item.icon }}"
-                        variant="{{ item.iconVariant }}"/>
-        {% endif %}
+            {% if item.icon and not item.iconStart %}
+                <twig:Micon class="text-[16px] md:text-[20px]" name="{{ item.icon }}"
+                            variant="{{ item.iconVariant }}"/>
+            {% endif %}
 
-    </a>
-{% else %}
-    <twig:DropDown :item="item"/>
+        </a>
+    {% else %}
+        <twig:DropDown :item="item"/>
+    {% endif %}
 {% endif %}

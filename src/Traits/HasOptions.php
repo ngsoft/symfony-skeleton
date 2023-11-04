@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use App\Entity\Option;
 use App\Utils\OptionManager;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -20,29 +19,10 @@ trait HasOptions
     #[Required]
     public function setOptionManager(OptionManager $optionManager): void
     {
-        $this->optionManager = $optionManager;
-
-        foreach (static::optionSetup() as $data)
-        {
-            if ($data instanceof Option)
-            {
-                $optionManager->register(
-                    $data->getName(),
-                    $data->getValue(),
-                    $data->getDescription(),
-                    $data->isAutoload()
-                );
-            } elseif (is_array($data) && in_range(count($data), 2, 4))
-            {
-                $optionManager->register(...$data);
-            } else
-            {
-                throw new \ValueError('Invalid value for ' . get_class($this) . '::optionSetup()');
-            }
-        }
+        $this->registerOptions($this->optionManager = $optionManager);
     }
 
-    abstract public static function optionSetup(): array;
+    abstract protected function registerOptions(OptionManager $optionManager): void;
 
     protected function getOption(string $name): mixed
     {

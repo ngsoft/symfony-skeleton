@@ -10,7 +10,7 @@ use NGSOFT\DataStructure\ReversibleIterator;
 use NGSOFT\DataStructure\Sort;
 use NGSOFT\Traits\ReversibleIteratorTrait;
 
-class MenuItem implements ReversibleIterator
+class MenuItem implements ReversibleIterator, \ArrayAccess
 {
     use ReversibleIteratorTrait;
 
@@ -28,6 +28,8 @@ class MenuItem implements ReversibleIterator
     protected Placement $tooltipPlacement = Placement::Auto;
     protected bool $chevronDisplayed      = true;
     protected bool $chevronEnd            = true;
+
+    protected bool $visible               = true;
 
     public function __construct(
         protected string $identifier,
@@ -54,6 +56,41 @@ class MenuItem implements ReversibleIterator
             $icon,
             $iconVariant
         );
+    }
+
+    public function isVisible(): bool
+    {
+        if ( ! $this->visible)
+        {
+            return false;
+        }
+
+        if ( ! $this->hasChildren())
+        {
+            return true;
+        }
+
+        foreach ($this->children as $child)
+        {
+            if ($child->isVisible())
+            {
+                return true;
+            }
+        }
+        // no children are visible so:
+        return false;
+    }
+
+    public function remove(): static
+    {
+        $this->parent?->removeChild($this);
+        return $this;
+    }
+
+    public function setVisible(bool $visible): static
+    {
+        $this->visible = $visible;
+        return $this;
     }
 
     public function isChevronDisplayed(): bool
@@ -190,18 +227,17 @@ class MenuItem implements ReversibleIterator
     {
         $this->removeChild($child);
         $child->setParent($this);
-        $this->children[] = $child;
+        $this->children[$child->getIdentifier()] = $child;
         return $this;
     }
 
     public function removeChild(self $child): static
     {
-        if (false !== $pos = array_search($child, $this->children))
+        if (isset($this->children[$id = $child->getIdentifier()]))
         {
             $child->setParent(null);
-            array_splice($this->children, $pos, 1);
+            unset($this->children[$id]);
         }
-
         return $this;
     }
 
@@ -295,5 +331,43 @@ class MenuItem implements ReversibleIterator
         }
 
         yield from $children;
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        if ($offset instanceof MenuItem)
+        {
+            $offset = $offset->getIdentifier();
+        }
+
+        if (is_string($offset))
+        {
+            return isset($this->children[$offset]);
+        }
+
+        return false;
+    }
+
+    public function offsetGet(mixed $offset): ?static
+    {
+        if (is_string($offset))
+        {
+            return $this->children[$offset];
+        }
+
+        return null;
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        // noop
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        if ($offset instanceof self)
+        {
+            $this->removeChild($offset);
+        }
     }
 }

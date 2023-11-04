@@ -64,10 +64,12 @@
                     darkModeWidgetModes[theme ?? 'auto']
                 ).classList.add('active');
                 darkModeWidget.addEventListener('click', e => {
-                    e.preventDefault();
                     const btn = e.target.closest('.dropdown-item');
-                    if (btn && !btn.classList.contains('active')) {
-                        enableDarkMode(darkModeWidgetModes[btn.id]);
+                    if (btn) {
+                        e.preventDefault();
+                        if (!btn.classList.contains('active')) {
+                            enableDarkMode(darkModeWidgetModes[btn.id]);
+                        }
                     }
                 });
             }

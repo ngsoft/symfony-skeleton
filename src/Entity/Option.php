@@ -9,9 +9,20 @@ use App\Utils;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OptionRepository::class)]
-#[ORM\Table(name: '`options`')]
+#[ORM\Table(name: '`global_options`')]
 class Option implements \JsonSerializable
 {
+    public const SITE_NAME        = 'site.name';
+    public const SITE_TITLE       = 'site.title';
+    public const SITE_ICON        = 'site.icon';
+    public const AUTOLOAD         = 'autoload';
+
+    public const DEFAULT_OPTIONS  = [
+        [self::SITE_NAME, 'SvelteApp', 'This is the site name displayed in the navbar'],
+        [self::SITE_TITLE, 'SvelteApp', 'This is the site name displayed as title.'],
+        [self::SITE_ICON, 'favicon.svg', 'This is the asset path to the site favicon.'],
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

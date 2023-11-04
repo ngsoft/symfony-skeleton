@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ site.title }}{% if page_title is defined %} - {{ page_title|trans }}{% endif %}{% endblock title %}
+{% block title %}{{ option_get('site.title') }}{% if page_title is defined %} - {{ page_title|trans }}{% endif %}{% endblock title %}
 
 {% block head %}
     {{ parent() }}
     {% include 'includes/_darkmode.html.twig' %}
     <link rel="icon"
-          href="{{ asset(site.icon) }}">
+          href="{{ asset(option_get('site.icon')) }}">
 {% endblock head %}
 
 {% block body %}

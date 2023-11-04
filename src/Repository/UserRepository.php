@@ -6,6 +6,8 @@ namespace App\Repository;
 
 use App\Entity\AccessToken;
 use App\Entity\User;
+use App\Traits\HasOptions;
+use App\Utils\OptionManager;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -25,6 +27,10 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
+    use HasOptions;
+
+    private ?bool $canRegister = null;
+
     public function __construct(
         ManagerRegistry $registry,
         private readonly AccessTokenRepository $tokenRepository
@@ -113,6 +119,45 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         }
 
         return $user;
+    }
+
+    public function canRegister(): bool
+    {
+        $result = &$this->canRegister;
+
+        if ( ! isset($result))
+        {
+            if ( ! $this->getOption(User::OPTION_CAN_REGISTER))
+            {
+                return $result = false;
+            }
+
+            if (0 < ($maxUsers = $this->getOption(User::OPTION_MAX_REGISTER)))
+            {
+                return $result = $this->countUsers() < $maxUsers;
+            }
+
+            return $result = true;
+        }
+
+        return $result;
+    }
+
+    protected function registerOptions(OptionManager $optionManager): void
+    {
+        $optionManager->register(
+            User::OPTION_CAN_REGISTER,
+            true,
+            'User Registration is enabled'
+        )->register(
+            User::OPTION_MAX_REGISTER,
+            -1,
+            'User Registration Limit < 1 is unlimited.'
+        )->register(
+            User::OPTION_CAN_CREATE_APIKEY,
+            false,
+            'Users can manage Api keys'
+        );
     }
 
     //    /**

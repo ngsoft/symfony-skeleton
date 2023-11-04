@@ -20,53 +20,57 @@ use function NGSOFT\Tools\some;
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username/email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Stringable, \JsonSerializable
 {
-    public const ROLE_USER         = 'ROLE_USER';
-    public const ROLE_ADMIN        = 'ROLE_ADMIN';
-    public const ROLE_SUPER_ADMIN  = 'ROLE_SUPER_ADMIN';
+    public const ROLE_USER                = 'ROLE_USER';
+    public const ROLE_ADMIN               = 'ROLE_ADMIN';
+    public const ROLE_SUPER_ADMIN         = 'ROLE_SUPER_ADMIN';
 
     /**
      * @var array<string,bool> role, writable
      */
-    public const BUILTIN_ROLES     = [
+    public const BUILTIN_ROLES            = [
         self::ROLE_USER        => false,
         self::ROLE_ADMIN       => true,
         self::ROLE_SUPER_ADMIN => true,
     ];
 
+    public const OPTION_CAN_REGISTER      = 'user.can_register';
+    public const OPTION_MAX_REGISTER      = 'user.max_register';
+    public const OPTION_CAN_CREATE_APIKEY = 'user.create_api_key';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id               = null;
+    private ?int $id                      = null;
 
     #[ORM\Column(length: 180)]
-    private ?string $username      = null;
+    private ?string $username             = null;
 
     #[ORM\Column]
-    private array $roles           = [];
+    private array $roles                  = [];
 
     /**
      * The hashed password.
      */
     #[ORM\Column]
-    private ?string $password      = null;
+    private ?string $password             = null;
 
     /**
      * No mapping for that property
      * It is used by easyadmin to change or create a password.
      */
-    private ?string $plainPassword = null;
+    private ?string $plainPassword        = null;
 
     #[ORM\Column('fullname', length: 255, nullable: true)]
-    private ?string $fullName      = null;
+    private ?string $fullName             = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $email         = null;
+    private ?string $email                = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: AccessToken::class)]
     private Collection $tokens;
 
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
-    private bool $enabled          = true;
+    private bool $enabled                 = true;
 
     public function __construct()
     {

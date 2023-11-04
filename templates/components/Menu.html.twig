@@ -1,4 +1,4 @@
-{% if menu is not empty %}
+{% if menu is not empty and menu.visible %}
     <ul class="flex flex-col md:flex-row items-center" data-te-navbar-nav-ref>
         {% for item in menu %}
             <li class="mb-4 lg:mb-0 lg:pr-2" data-te-nav-item-ref>

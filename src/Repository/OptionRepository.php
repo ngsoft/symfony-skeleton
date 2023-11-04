@@ -156,6 +156,14 @@ class OptionRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return array<string,true>
+     */
+    public function getLoadedOptions(): array
+    {
+        return array_filter(self::$has, fn ($b) => true === $b);
+    }
+
+    /**
      * Autoload options.
      */
     private function initialize(): void
@@ -164,11 +172,18 @@ class OptionRepository extends ServiceEntityRepository
         {
             $this->setUpOption(
                 Option::new(
-                    'autoload',
+                    Option::AUTOLOAD,
                     true,
-                    'Autoload Options When Repository is loaded first'
+                    'Enable options autoload.'
                 )->setAutoload(false)
             );
+
+            foreach (Option::DEFAULT_OPTIONS as $args)
+            {
+                $this->setUpOption(
+                    Option::new(...$args)
+                );
+            }
 
             if (true === $this->getOption('autoload'))
             {

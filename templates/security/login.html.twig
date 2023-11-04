@@ -5,12 +5,10 @@
 
 {% block content %}
 
-    <div class="min-h-screen flex flex-col justify-center items-center w-screen">
+    <div class="min-h-[calc(100vh-128px)] flex flex-col justify-center items-center w-screen">
 
         <div class="container mx-auto sm:px-4 flex flex-col justify-center md:w-[50vw]">
             <h3 class="text-center mb-5 capitalize">{{ 'login'|trans }}</h3>
-
-
             <form action="{{ path('app_login') }}" method="post">
 
                 {% if error %}
@@ -52,10 +50,7 @@
                         </label>
                     </div>
                 </div>
-
-
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
                 {# If you want to control the URL the user is redirected to on success
                     <input type="hidden" name="_target_path" value="/account"> #}
                 <div class="flex items-center">
@@ -79,6 +74,7 @@
                 </div>
 
             </form>
+
         </div>
 
     </div>

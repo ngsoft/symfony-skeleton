@@ -8,7 +8,7 @@ use App\Traits\HasAliases;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
 
-#[AsTwigComponent()]
+#[AsTwigComponent]
 final class Micon
 {
     use HasAliases;
@@ -18,7 +18,7 @@ final class Micon
     public const OUTLINED  = 'material-icons-outlined';
     public const SHARP     = 'material-icons-sharp';
     public const TWO_TONES = 'material-icons-two-tone';
-    public const DEFAULT   = self::FILLED;
+    public const DEFAULT   = self::OUTLINED;
     public const VARIANTS  = [
         self::FILLED,
         self::ROUND,

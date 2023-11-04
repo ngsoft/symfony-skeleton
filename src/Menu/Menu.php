@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Menu;
 
-class Menu implements \IteratorAggregate, \Countable
+class Menu implements \IteratorAggregate, \Countable, \ArrayAccess
 {
     /** @var MenuItem[] */
     protected array $entries = [];
@@ -36,6 +36,19 @@ class Menu implements \IteratorAggregate, \Countable
         return new static($name);
     }
 
+    public function isVisible(): bool
+    {
+        foreach ($this as $item)
+        {
+            if ($item->isVisible())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @return \Traversable<MenuItem>
      */
@@ -57,20 +70,56 @@ class Menu implements \IteratorAggregate, \Countable
     public function addItem(MenuItem $item): static
     {
         $this->removeItem($item);
-        $this->entries[] = $item;
+        $this->entries[$item->getIdentifier()] = $item;
         return $this;
     }
 
-    public function removeItem(MenuItem $item): static
+    public function removeItem(MenuItem|string $item): static
     {
         $this->all = [];
 
-        if (false !== $pos = array_search($item, $this->entries))
+        if ( ! is_string($item))
         {
-            unset($this->entries[$pos]);
+            $item = $item->getIdentifier();
         }
 
+        unset($this->entries[$item]);
+
         return $this;
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        if ($offset instanceof MenuItem)
+        {
+            $offset = $offset->getIdentifier();
+        }
+
+        if (is_string($offset))
+        {
+            return isset($this->entries[$offset]);
+        }
+
+        return false;
+    }
+
+    public function offsetGet(mixed $offset): ?MenuItem
+    {
+        if (is_string($offset))
+        {
+            return $this->entries[$offset] ?? null;
+        }
+        return null;
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        // noop
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        // noop
     }
 
     private function addAll(MenuItem $menuItem): void

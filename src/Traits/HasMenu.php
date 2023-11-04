@@ -17,7 +17,7 @@ trait HasMenu
     {
         $this->twig = $twig;
 
-        $menu       = static::menuSetup();
+        $menu       = $this->menuSetup();
 
         $twig->addGlobal($menu->getName(), $menu);
     }

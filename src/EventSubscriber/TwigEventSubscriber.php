@@ -8,8 +8,8 @@ use App\Config\Placement;
 use App\Entity\User;
 use App\Menu\Menu;
 use App\Menu\MenuItem;
+use App\Repository\UserRepository;
 use App\Traits\HasMenu;
-use App\Traits\HasOptions;
 use App\Twig\Components\Micon;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,13 +22,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class TwigEventSubscriber implements EventSubscriberInterface
 {
-    use HasOptions;
     use HasMenu;
 
     protected Menu $menu;
 
     public function __construct(
         protected readonly Security $security,
+        protected readonly UserRepository $userRepository,
         protected readonly RequestStack $requestStack,
         protected readonly UrlGeneratorInterface $urlGenerator
     ) {}
@@ -39,30 +39,12 @@ class TwigEventSubscriber implements EventSubscriberInterface
             $this->menu,
             $this->requestStack->getCurrentRequest()->getPathInfo()
         );
-
-        $site = [
-            'name'  => $this->getOption('site.name'),
-            'title' => $this->getOption('site.title'),
-            'icon'  => $this->getOption('site.icon'),
-        ];
-
-        $this->twig->addGlobal('site', $site);
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
             ControllerArgumentsEvent::class => 'onControllerEvent',
-        ];
-    }
-
-    public static function optionSetup(): array
-    {
-        return [
-            ['site.name', 'SvelteApp', 'This is the site name displayed in the navbar'],
-            ['site.title', 'SvelteApp', 'This is the site name displayed as title'],
-            ['site.icon', 'favicon.svg', 'This is the asset path to the icon'],
-
         ];
     }
 
@@ -78,9 +60,10 @@ class TwigEventSubscriber implements EventSubscriberInterface
         return $menu;
     }
 
-    protected function addUserWidget(Menu $menu, ?User $user): void
+    protected function addUserWidget(Menu $menu): void
     {
-        if ($user)
+        /** @var ?User $user */
+        if ($user = $this->security->getUser())
         {
             $userProfile = MenuItem::new(
                 'user-profile-widget',
@@ -92,33 +75,28 @@ class TwigEventSubscriber implements EventSubscriberInterface
                     'user-profile',
                     'Profile',
                     'app_profile',
-                    icon: 'manage_accounts',
-                    iconVariant: Micon::OUTLINED
+                    icon: 'manage_accounts'
                 )
-            );
-
-            if ($user->isAdmin())
-            {
-                $userProfile->addChild(
-                    MenuItem::new(
-                        'admin-panel',
-                        'Admin Panel',
-                        'admin',
-                        icon: 'admin_panel_settings',
-                        iconVariant: Micon::OUTLINED
-                    )
-                );
-            }
-
-            $userProfile->addChild(
+            )->addChild(
+                MenuItem::new(
+                    'admin-panel',
+                    'Admin Panel',
+                    'admin',
+                    icon: 'admin_panel_settings'
+                )
+            )->addChild(
                 MenuItem::new(
                     'user-logout',
                     'Logout',
                     'app_logout',
-                    icon: 'logout',
-                    iconVariant: Micon::OUTLINED
+                    icon: 'logout'
                 )
             );
+
+            if ( ! $user->isAdmin())
+            {
+                $userProfile['admin-panel']->remove();
+            }
         } else
         {
             $userProfile = MenuItem::new(
@@ -143,9 +121,22 @@ class TwigEventSubscriber implements EventSubscriberInterface
                     iconVariant: Micon::OUTLINED
                 )
             );
+
+            if ( ! $this->userRepository->countUsers())
+            {
+                $userProfile['user-login']->remove();
+            }
+
+            if ( ! $this->userRepository->canRegister())
+            {
+                $userProfile['user-register']->remove();
+            }
         }
 
-        $menu->addItem($userProfile->setLabelDisplayed(false)->setTooltipPlacement(Placement::Left));
+        if (count($userProfile) && $userProfile->isVisible())
+        {
+            $menu->addItem($userProfile->setLabelDisplayed(false)->setTooltipPlacement(Placement::Left));
+        }
     }
 
     protected function addDarkModeWidget(Menu $menu): void
