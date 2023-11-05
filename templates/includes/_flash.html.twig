@@ -1,0 +1,7 @@
+{% for label, messages in app.flashes %}
+    {% if valid_color(label) %}
+        {% for message in messages %}
+            <twig:Alert :message="message" dismissible="true" icon="true" :type="label" autohide="true"/>
+        {% endfor %}
+    {% endif %}
+{% endfor %}

@@ -1,42 +1,34 @@
+@use 'colors' as *;
 @use "alert";
 @use "link";
 @use "btn";
 @use "navbar";
 @use "dropdown";
-
-$variants: (
-        'primary',
-        'secondary',
-        'success',
-        'danger',
-        'warning',
-        'info'
-);
-
+@use "switch";
 
 @mixin execute {
 
-  h1, .h1 {
+  .h1 {
     @apply text-5xl font-extrabold dark:text-white mb-4;
   }
 
-  h2, .h2 {
+  .h2 {
     @apply text-4xl font-bold dark:text-white mb-4;
   }
 
-  h3, .h3 {
+  .h3 {
     @apply text-3xl font-bold dark:text-white mb-4;
   }
 
-  h4, .h4 {
+  .h4 {
     @apply text-2xl font-bold dark:text-white mb-4;
   }
 
-  h5, .h5 {
+  .h5 {
     @apply text-xl font-bold dark:text-white mb-4;
   }
 
-  h6, .h6 {
+  .h6 {
     @apply text-lg font-bold dark:text-white mb-4;
   }
 
@@ -59,6 +51,40 @@ $variants: (
     border-radius: 20px;
   }
 
+
+  .fade-in {
+    animation: fadeIn .75s both;
+    @media (prefers-reduced-motion) {
+      animation: none;
+    }
+  }
+
+  .fade-out {
+    animation: fadeOut .75s both;
+    @media (prefers-reduced-motion) {
+      animation: none;
+    }
+  }
+
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
   @include navbar.navbar;
   @include dropdown.dropdown;
 
@@ -68,7 +94,7 @@ $variants: (
     @include link.link($variant, $done);
     @include alert.alert($variant, $done);
     @include btn.btn($variant, $done);
-
+    @include switch.switch($variant, $done);
     $done: true;
   }
 

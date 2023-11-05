@@ -53,7 +53,7 @@ class TwigEventSubscriber implements EventSubscriberInterface
         $this->menu = $menu = Menu::new('main_menu');
 
         $menu->addItem(
-            MenuItem::new('welcome', 'Home', 'app_welcome', icon: 'home')
+            MenuItem::new('welcome', 'Home', 'app_welcome', icon: 'home', iconVariant: Micon::ROUND)
         );
         $this->addUserWidget($this->menu, $this->security->getUser());
         $this->addDarkModeWidget($menu);

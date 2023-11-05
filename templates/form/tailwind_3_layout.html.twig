@@ -39,7 +39,7 @@
 {%- endblock radio_widget -%}
 
 {%- block switch_widget -%}
-    {%- set attr = attr|merge({'class': 'sr-only peer'}) -%}
+    {%- set attr = attr|merge({'class': block('class_input_switch'), 'role': 'switch'}) -%}
     {{- form_label(form, null, { widget: block('checkbox_widget', 'form_div_layout.html.twig') }) -}}
 {%- endblock switch_widget -%}
 
@@ -183,15 +183,14 @@
         {%- if not compound -%}
             {%- set label_attr = label_attr|merge({'for': id}) -%}
         {%- endif -%}
-        <label{% with { attr: label_attr } %}{{ block('attributes') }}{% endwith %}>
+        <div class="inline-flex items-baseline">
             {{ widget|raw }}
-            <div class="{{ block('class_input_switch') }}"></div>
             {%- if label is not same as(false) -%}
-                <span class="{{ label_attr_class|trim }}">
+                <label class="{{ label_attr_class|trim }}" {% with { attr: label_attr } %}{{ block('attributes') }}{% endwith %}>
                     {{- block('form_label_content') -}}
-                </span>
+                </label>
             {%- endif -%}
-        </label>
+        </div>
     {%- endif -%}
 {%- endblock switch_label %}
 
@@ -252,9 +251,9 @@
     ml-2 text-sm font-medium text-gray-900 dark:text-gray-300
 {%- endblock class_input_radio_label %}
 
-{% block class_input_switch_label -%}
-    relative inline-flex items-center cursor-pointer
-{%- endblock class_input_switch_label %}
+{% block class_input_switch %}primary{% endblock class_input_switch %}
+
+{% block class_input_switch_label -%}{%- endblock class_input_switch_label %}
 
 {% block class_input_text -%}
     text-gray-900 bg-gray-50 rounded-lg text-sm block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500
@@ -276,9 +275,7 @@
     rounded {{ block('class_input_radio') }}
 {%- endblock class_input_checkbox %}
 
-{% block class_input_switch -%}
-    w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 dark:border-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600
-{%- endblock class_input_switch %}
+
 
 {% block class_select -%}
     {{ block('class_input_text') }}

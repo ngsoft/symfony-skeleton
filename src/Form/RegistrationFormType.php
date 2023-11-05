@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\User;
+use App\Form\Type\SwitchType;
 use App\Traits\CanTranslate;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -28,7 +28,7 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('username')
             ->add('email', HiddenType::class)
-            ->add('agreeTerms', CheckboxType::class, [
+            ->add('agreeTerms', SwitchType::class, [
                 'label_attr'  => ['class' => 'cursor-pointer'],
                 'mapped'      => false,
                 'constraints' => [

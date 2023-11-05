@@ -2,23 +2,17 @@
 
 {% extends 'layout.html.twig' %}
 
+{% block flash %}{% if error %}
+    <twig:Alert type="danger" icon="true" dismissible="true" autohide="true" data-delay="3"
+                message="{{ error.messageKey|trans(error.messageData, 'security') }}"/>{% endif %}{% endblock %}
 
 {% block content %}
 
-    <div class="min-h-[calc(100vh-128px)] flex flex-col justify-center items-center w-screen">
+    <div class="h-full container mx-auto flex flex-col justify-center items-center w-screen">
 
-        <div class="container mx-auto sm:px-4 flex flex-col justify-center md:w-[50vw]">
-            <h3 class="text-center mb-5 capitalize">{{ 'login'|trans }}</h3>
+        <div class="block rounded-lg bg-white p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700 w-full md:w-[50vw]">
+            <h3 class="h3 text-center mb-5 capitalize">{{ 'login'|trans }}</h3>
             <form action="{{ path('app_login') }}" method="post">
-
-                {% if error %}
-                    <div role="alert"
-                         class="alert alert-danger">
-                        <twig:Micon name="cancel" class="me-3"/>
-                        {{ error.messageKey|trans(error.messageData, 'security') }}
-                    </div>
-                {% endif %}
-
                 <div class="mb-3">
                     <label
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white capitalize"
@@ -40,12 +34,9 @@
 
 
                 <div class="mb-3">
-                    <div class="flex items-center mr-4">
-                        <input
-                                class="rounded w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                type="checkbox" name="_remember_me" id="remember-me">
-                        <label class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
-                               for="remember-me">
+                    <div class="flex items-baseline">
+                        <input role="switch" type="checkbox" name="_remember_me" id="remember-me">
+                        <label for="remember-me">
                             {{ 'Remember me'|trans }}
                         </label>
                     </div>

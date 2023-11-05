@@ -9,9 +9,26 @@
           href="{{ asset(option_get('site.icon')) }}">
 {% endblock head %}
 
+{% set deltaPage =  app.environment == 'dev' ? 108 : 72 %}
+{# Tailwind preloading
+    .min-h-[calc(100vh-108px)] .min-h-[calc(100vh-72px)]
+    .h-[calc(100vh-108px)]  .h-[calc(100vh-72px)]
+#}
+
 {% block body %}
     {% block header %}
-        {% include 'includes/_navbar.html.twig' %}
-    {% endblock %}
-    {% block content %}{% endblock content %}
+        <header class="sticky top-0">
+            {% include 'includes/_navbar.html.twig' %}
+        </header>
+    {% endblock header %}
+    <div class="fixed z-[5000] right-0 bottom-[32px] px-2 w-screen sm:max-w-[66vw] lg:max-w-[33vw] flex flex-col-reverse empty:hidden"
+    >{% include 'includes/_flash.html.twig' %}{% block flash %}{% endblock flash %}</div>
+
+    {% block pages %}
+        <div class="w-screen min-h-[calc(100vh-{{ deltaPage }}px)] h-[calc(100vh-{{ deltaPage }}px)] py-4">
+            {% block content %}{% endblock content %}
+        </div>
+    {% endblock pages %}
+    {% block footer %}
+        <footer>{% include 'includes/_footer.html.twig' %}</footer>{% endblock footer %}
 {% endblock body %}

@@ -5,6 +5,7 @@ import elements from 'tw-elements/dist/plugin.cjs';
 export default {
     content: [
         "./assets/**/*.{svelte,js}",
+        "./assets/*.{scss,css}",
         "./templates/**/*.twig",
         "./src/Form/**/*.php",
         "./node_modules/tw-elements/dist/js/**/*.js",

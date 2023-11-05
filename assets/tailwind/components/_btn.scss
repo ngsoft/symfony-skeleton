@@ -1,11 +1,4 @@
-$colors: (
-        'primary' '#3b71ca' '59,113,202',
-        'success' '#14a44d',
-        'danger' '#dc4c64',
-        'warning' '#e4a11b',
-        'info' '#54b4d3'
-);
-
+@use 'colors' as *;
 
 @mixin btn($variant, $done: false) {
 

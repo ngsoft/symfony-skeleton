@@ -97,6 +97,8 @@ class SecurityController extends AbstractController
 
             $entityManager->flush();
 
+            $this->addFlash('success', 'Your account has been created.');
+
             // do anything else you need here, like send an email
 
             return $this->redirectToRoute('app_login');

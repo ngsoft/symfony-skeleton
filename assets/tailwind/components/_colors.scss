@@ -1,0 +1,9 @@
+$colors: (
+        'primary' '#3b71ca' '59,113,202',
+        'success' '#14a44d' '20,164,77',
+        'danger' '#dc4c64' '220,76,100',
+        'warning' '#e4a11b' '228,161,27',
+        'info' '#54b4d3' '84,180,211'
+) !default;
+
+$variants: 'primary', 'secondary', 'success', 'danger', 'warning', 'info' !default;
