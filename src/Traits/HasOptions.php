@@ -19,7 +19,13 @@ trait HasOptions
     #[Required]
     public function setOptionManager(OptionManager $optionManager): void
     {
-        $this->registerOptions($this->optionManager = $optionManager);
+        // fix: migration exception
+        try
+        {
+            $this->registerOptions($this->optionManager = $optionManager);
+        } catch (\Throwable)
+        {
+        }
     }
 
     abstract protected function registerOptions(OptionManager $optionManager): void;

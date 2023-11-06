@@ -21,6 +21,11 @@ final class InnerFacade
         $this->setService(ContainerInterface::class, $container);
     }
 
+    public function isBooted(): bool
+    {
+        return $this->hasService(ContainerInterface::class);
+    }
+
     public function getService(string $id): mixed
     {
         return $this->services[$this->getAlias($id)] ?? null;

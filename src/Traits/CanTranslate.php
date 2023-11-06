@@ -16,6 +16,9 @@ trait CanTranslate
         return $this->translator;
     }
 
+    /**
+     * @internal
+     */
     #[Required]
     public function setTranslator(TranslatorInterface $translator): void
     {

@@ -23,7 +23,7 @@ ElementFinder('[data-autohide].alert', alert => {
         alert.remove();
     };
 
-    let delay = dataset(alert, 'delay'), timeout = reducedMotion.matches ? 0 : 775;
+    let delay = dataset(alert, 'delay');
 
     if (!isInt(delay)) {
         delay = 2000;

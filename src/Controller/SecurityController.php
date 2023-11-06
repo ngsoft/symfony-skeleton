@@ -6,6 +6,8 @@ namespace App\Controller;
 
 use App\Entity\AccessToken;
 use App\Entity\User;
+use App\Form\ChangePasswordType;
+use App\Form\ProfileType;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -112,9 +114,58 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/profile', 'app_profile')]
-    public function profile(): Response
-    {
-        return $this->render('security/profile.html.twig');
+    public function profile(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface $entityManager
+    ): Response {
+        /** @var User $user */
+        $user         = $this->getUser();
+
+        $formProfile  = $this->createForm(ProfileType::class, $user);
+        $formPassword = $this->createForm(ChangePasswordType::class);
+
+        $formProfile->handleRequest($request);
+        $formPassword->handleRequest($request);
+
+        if ($formProfile->isSubmitted() && $formProfile->isValid())
+        {
+            $entityManager->persist($user);
+            $entityManager->flush();
+            $this->addFlash('success', 'Your account has been updated.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        if ($formPassword->isSubmitted() && $formPassword->isValid())
+        {
+            if ($userPasswordHasher->isPasswordValid(
+                $user,
+                $formPassword->get('oldPassword')->getData()
+            ))
+            {
+                // encode the plain password
+                $user->setPassword(
+                    $userPasswordHasher->hashPassword(
+                        $user,
+                        $formPassword->get('newPassword')->getData()
+                    )
+                );
+                $entityManager->persist($user);
+
+                $entityManager->flush();
+                $this->addFlash('success', 'Your password has been changed.');
+                return $this->redirectToRoute('app_profile');
+            }
+
+            $this->addFlash('danger', 'Your password is incorrect.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        return $this->render('security/profile.html.twig', [
+            'formProfile'  => $formProfile,
+            'formPassword' => $formPassword,
+            'hasEmail'     => ! empty($user->getEmail()),
+        ]);
     }
 
     /**

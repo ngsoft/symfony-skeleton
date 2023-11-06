@@ -244,19 +244,19 @@
 {# Class #}
 
 {% block class_label -%}
-    block mb-2 text-sm font-medium text-gray-900 dark:text-white
+    block mb-2 text-sm font-medium text-gray-900 dark:text-white capitalize
 {%- endblock class_label %}
 
 {% block class_input_radio_label -%}
     ml-2 text-sm font-medium text-gray-900 dark:text-gray-300
 {%- endblock class_input_radio_label %}
 
-{% block class_input_switch %}primary{% endblock class_input_switch %}
+{% block class_input_switch %}{% endblock class_input_switch %}
 
 {% block class_input_switch_label -%}{%- endblock class_input_switch_label %}
 
 {% block class_input_text -%}
-    text-gray-900 bg-gray-50 rounded-lg text-sm block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500
+    text-gray-900 bg-gray-50 rounded-lg text-sm block w-full p-2.5 border border-gray-300 focus:z-10 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 disabled:opacity-60
 {%- endblock class_input_text %}
 
 {% block class_input_range -%}

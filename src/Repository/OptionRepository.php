@@ -26,7 +26,14 @@ class OptionRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry, private readonly LoggerInterface $logger)
     {
         parent::__construct($registry, Option::class);
-        $this->initialize();
+
+        // handle migration exceptions
+        try
+        {
+            $this->initialize();
+        } catch (\Throwable)
+        {
+        }
     }
 
     /**
