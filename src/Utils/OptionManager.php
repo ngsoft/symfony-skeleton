@@ -58,7 +58,7 @@ final class OptionManager implements \ArrayAccess
         {
             if (isset($this->defaultValues[$name]))
             {
-                return $defaultValue[$name]->getValue();
+                return $this->defaultValues[$name]->getValue();
             }
 
             return value($defaultValue);

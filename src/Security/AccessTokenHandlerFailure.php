@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Utils\ApiError;
+use App\Utils\ApiPayload;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,9 +16,6 @@ class AccessTokenHandlerFailure implements AuthenticationFailureHandlerInterface
 {
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        return new JsonResponse([
-            'error' => 'Invalid credentials.',
-            'token' => $exception->getToken(),
-        ], 401);
+        return new JsonResponse(ApiPayload::withError(ApiError::UNAUTHENTICATED), 401);
     }
 }

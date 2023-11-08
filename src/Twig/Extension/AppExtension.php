@@ -9,6 +9,9 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
+/**
+ * @phan-file-suppress PhanStaticCallToNonStatic
+ */
 class AppExtension extends AbstractExtension
 {
     public function getFilters(): array

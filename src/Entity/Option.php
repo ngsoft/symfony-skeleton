@@ -55,6 +55,11 @@ class Option implements \JsonSerializable
 
     public function setName(string $name): static
     {
+        if (str_contains($name, ','))
+        {
+            throw new \InvalidArgumentException('$name cannot contain `,`');
+        }
+
         $this->name = $name;
 
         return $this;

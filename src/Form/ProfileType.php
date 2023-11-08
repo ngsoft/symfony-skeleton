@@ -20,8 +20,6 @@ class ProfileType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $emailDisabled = $options['email'] ?? false;
-
         $builder
             ->add('fullName', TextType::class, [
                 'label'    => $this->translate('full name'),
@@ -30,7 +28,7 @@ class ProfileType extends AbstractType
             ->add('email', EmailType::class, [
                 'label'       => $this->translate('email'),
                 'required'    => false,
-                'disabled'    => $emailDisabled,
+                'mapped'      => false,
                 'constraints' => [
                     new Email(),
                 ],

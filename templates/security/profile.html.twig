@@ -10,7 +10,8 @@
             {{ form_start(formProfile) }}
             {{ form_row(formProfile.fullName) }}
             {{ form_row(formProfile.email, {
-                disabled: hasEmail
+                disabled: hasEmail,
+                value: app.user.email
             }) }}
             {{ form_end(formProfile) }}
         </div>

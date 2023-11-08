@@ -10,6 +10,8 @@ use App\Form\ChangePasswordType;
 use App\Form\ProfileType;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
+use App\Utils\ApiError;
+use App\Utils\ApiPayload;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,11 +24,14 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
+/**
+ * @phan-file-suppress PhanUndeclaredMethod, PhanTypeMismatchArgument
+ */
 class SecurityController extends AbstractController
 {
     public function __construct(private readonly UserRepository $userRepository) {}
 
-    #[Route('/login', name: 'app_login')]
+    #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if (null !== $this->getUser())
@@ -51,7 +56,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route('/register', name: 'app_register')]
+    #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(
         Request $request,
         UserPasswordHasherInterface $userPasswordHasher,
@@ -113,7 +118,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route('/profile', 'app_profile')]
+    #[Route('/profile', 'app_profile', methods: ['GET', 'POST'])]
     public function profile(
         Request $request,
         UserPasswordHasherInterface $userPasswordHasher,
@@ -130,6 +135,13 @@ class SecurityController extends AbstractController
 
         if ($formProfile->isSubmitted() && $formProfile->isValid())
         {
+            if (
+                ! empty($email = $formProfile->get('email')->getData())
+                && empty($user->getEmail())
+            ) {
+                $user->setEmail($email);
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
             $this->addFlash('success', 'Your account has been updated.');
@@ -162,8 +174,8 @@ class SecurityController extends AbstractController
         }
 
         return $this->render('security/profile.html.twig', [
-            'formProfile'  => $formProfile,
-            'formPassword' => $formPassword,
+            'formProfile'  => $formProfile->createView(),
+            'formPassword' => $formPassword->createView(),
             'hasEmail'     => ! empty($user->getEmail()),
         ]);
     }
@@ -171,27 +183,27 @@ class SecurityController extends AbstractController
     /**
      * Svelte / js api access using cookie => Authorization: Bearer <token.token>.
      */
-    #[Route('/profile/user-token', 'app_user_token')]
+    #[Route('/profile/user-token', 'app_user_token', methods: ['GET'])]
     public function token(): JsonResponse
     {
         $user = $this->getUser();
 
         if ($user instanceof User)
         {
-            return $this->json($this->userRepository->generateOrGetToken($user));
+            return $this->json(
+                ApiPayload::new($this->userRepository->generateOrGetToken($user))
+            );
         }
 
         throw new BadCredentialsException();
     }
 
-    #[Route('/api/login', name: 'api_login')]
+    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
     public function apiLogin(#[CurrentUser] ?User $user, EntityManagerInterface $em): JsonResponse
     {
         if (null === $user)
         {
-            return $this->json([
-                'error' => 'missing credentials',
-            ], Response::HTTP_UNAUTHORIZED);
+            return $this->json(ApiPayload::withError(ApiError::UNAUTHENTICATED), Response::HTTP_UNAUTHORIZED);
         }
 
         $token = $user->getToken() ?? new AccessToken($user);
@@ -200,15 +212,15 @@ class SecurityController extends AbstractController
         $em->persist($token);
         $em->flush();
 
-        return $this->json($token);
+        return $this->json(ApiPayload::new($token));
     }
 
     #[IsGranted('IS_AUTHENTICATED_FULLY', statusCode: 401)]
-    #[Route('/api/user', name: 'api_user')]
+    #[Route('/api/user', name: 'api_user', methods: ['GET'])]
     public function apiUser(): JsonResponse
     {
-        return $this->json([
-            'result' => null !== $this->getUser(),
-        ]);
+        return $this->json(
+            ApiPayload::new(null !== $this->getUser())
+        );
     }
 }

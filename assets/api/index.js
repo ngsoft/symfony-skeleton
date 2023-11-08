@@ -5,6 +5,8 @@ let token, tokenExpires = 0, basepath;
 
 export const API_ENDPOINTS = {
     user: '/api/user',
+    option: '/api/option',
+    options: '/api/options'
 };
 
 function getBasePath() {
@@ -28,7 +30,7 @@ async function getToken() {
                 }
                 throw new Error('Not Logged in');
             }
-        ).catch(() => null);
+        ).then(obj => obj.result).catch(() => null);
 
         if (!isEmpty(data)) {
             tokenExpires = (new Date(data.expires)).getTime();
@@ -80,6 +82,10 @@ export async function apiCall(endpoint, params = {}, method = 'GET') {
 
     method = method.toUpperCase();
 
+    if (!endpoint.startsWith('/')) {
+        endpoint = `/${endpoint}`;
+    }
+
     const url = new URL(location.origin);
     url.pathname = getBasePath() + endpoint;
 
@@ -123,7 +129,7 @@ export async function apiCall(endpoint, params = {}, method = 'GET') {
             'for', url.pathname,
         );
         return null;
-    }).catch(err => {
+    }).then(obj => obj?.result).catch(err => {
         console.error(err);
         return null;
     });

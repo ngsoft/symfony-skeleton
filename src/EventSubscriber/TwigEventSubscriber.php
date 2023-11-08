@@ -19,6 +19,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Add globals to twig.
+ *
+ * @phan-file-suppress PhanUndeclaredMethod
  */
 class TwigEventSubscriber implements EventSubscriberInterface
 {
@@ -55,7 +57,7 @@ class TwigEventSubscriber implements EventSubscriberInterface
         $menu->addItem(
             MenuItem::new('welcome', 'Home', 'app_welcome', icon: 'home', iconVariant: Micon::ROUND)
         );
-        $this->addUserWidget($this->menu, $this->security->getUser());
+        $this->addUserWidget($this->menu);
         $this->addDarkModeWidget($menu);
         return $menu;
     }
