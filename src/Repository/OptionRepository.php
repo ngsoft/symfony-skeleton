@@ -86,6 +86,11 @@ class OptionRepository extends ServiceEntityRepository
     {
         $name = $this->getName($name);
 
+        if (str_contains($name, ','))
+        {
+            throw new \InvalidArgumentException('Option names cannot contain `,`');
+        }
+
         if ($this->hasOption($name))
         {
             $entity = self::$options[$name] ??= $this->findOneBy(['name' => $name]);

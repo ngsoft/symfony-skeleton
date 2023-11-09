@@ -68,6 +68,16 @@ trait HasAttributes
         return $this;
     }
 
+    public function addAttributes(array $attributes): static
+    {
+        foreach ($attributes as $name => $value)
+        {
+            $this->addAttribute($name, $value);
+        }
+
+        return $this;
+    }
+
     public function getAttribute(string $name, mixed $defaultValue = null): mixed
     {
         return $this->attributes[$name] ?? value($defaultValue);

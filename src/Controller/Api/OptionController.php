@@ -6,8 +6,6 @@ namespace App\Controller\Api;
 
 use App\Repository\OptionRepository;
 use App\Utils\ApiError;
-use App\Utils\ApiPayload;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
@@ -25,12 +23,16 @@ class OptionController extends ApiAbstractController
     ): Response {
         if (empty($option))
         {
-            return $this->json(ApiPayload::withError(ApiError::BAD_REQUEST));
+            return $this->apiResponse(ApiError::new(ApiError::BAD_REQUEST));
         }
 
-        return $this->json(
-            ApiPayload::new($optionRepository->getOption($option))->setAttribute('option', $option)
-        );
+        try
+        {
+            return $this->apiResponse($optionRepository->getOption($option), ['option' => $option]);
+        } catch (\InvalidArgumentException)
+        {
+            return $this->apiResponse(ApiError::new(ApiError::BAD_REQUEST));
+        }
     }
 
     #[Route('/api/options', name: 'api_options', methods: ['GET'])]
@@ -38,7 +40,7 @@ class OptionController extends ApiAbstractController
         Request $request,
         OptionRepository $optionRepository
     ): Response {
-        $badRequest = ApiPayload::withError(ApiError::BAD_REQUEST);
+        $badRequest = ApiError::new(ApiError::BAD_REQUEST);
 
         $options    = $request->query->all()['options'] ?? [];
 
@@ -49,7 +51,7 @@ class OptionController extends ApiAbstractController
 
         if ( ! is_array($options) || empty($options))
         {
-            return $this->json($badRequest);
+            return $this->apiResponse($badRequest);
         }
 
         $values     = $keys = [];
@@ -60,16 +62,14 @@ class OptionController extends ApiAbstractController
             {
                 if ( ! is_string($opt) || ! preg_match('#^[a-z]#i', $opt))
                 {
-                    return new JsonResponse($badRequest);
+                    return $this->apiResponse($badRequest);
                 }
                 $values[$name] = $optionRepository->getOption($opt);
                 $keys[]        = $name;
             }
         }
 
-        return $this->json(
-            ApiPayload::new($values)->setAttribute('requested_options', $keys)
-        );
+        return $this->apiResponse($values, ['options' => $keys]);
     }
 
     protected function parseOptions(string $name): array

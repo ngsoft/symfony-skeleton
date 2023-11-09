@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\Api\ApiAbstractController;
 use App\Entity\AccessToken;
 use App\Entity\User;
 use App\Form\ChangePasswordType;
@@ -11,15 +12,12 @@ use App\Form\ProfileType;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Utils\ApiError;
-use App\Utils\ApiPayload;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -27,7 +25,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 /**
  * @phan-file-suppress PhanUndeclaredMethod, PhanTypeMismatchArgument
  */
-class SecurityController extends AbstractController
+class SecurityController extends ApiAbstractController
 {
     public function __construct(private readonly UserRepository $userRepository) {}
 
@@ -190,12 +188,10 @@ class SecurityController extends AbstractController
 
         if ($user instanceof User)
         {
-            return $this->json(
-                ApiPayload::new($this->userRepository->generateOrGetToken($user))
-            );
+            return $this->apiResponse($this->userRepository->generateOrGetToken($user));
         }
 
-        throw new BadCredentialsException();
+        return $this->apiResponse(ApiError::new(ApiError::UNAUTHENTICATED));
     }
 
     #[Route('/api/login', name: 'api_login', methods: ['POST'])]
@@ -203,7 +199,7 @@ class SecurityController extends AbstractController
     {
         if (null === $user)
         {
-            return $this->json(ApiPayload::withError(ApiError::UNAUTHENTICATED), Response::HTTP_UNAUTHORIZED);
+            return $this->apiResponse(ApiError::new(ApiError::UNAUTHENTICATED));
         }
 
         $token = $user->getToken() ?? new AccessToken($user);
@@ -212,15 +208,13 @@ class SecurityController extends AbstractController
         $em->persist($token);
         $em->flush();
 
-        return $this->json(ApiPayload::new($token));
+        return $this->apiResponse($token);
     }
 
     #[IsGranted('IS_AUTHENTICATED_FULLY', statusCode: 401)]
     #[Route('/api/user', name: 'api_user', methods: ['GET'])]
     public function apiUser(): JsonResponse
     {
-        return $this->json(
-            ApiPayload::new(null !== $this->getUser())
-        );
+        return $this->apiResponse(null !== $this->getUser());
     }
 }
